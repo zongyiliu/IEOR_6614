@@ -1,1 +1,135 @@
-Ho
+\documentclass[letterpaper]{article} 
+\usepackage[utf8]{inputenc}
+\linespread{0.85}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[version=4]{mhchem}
+\usepackage{stmaryrd}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{capt-of}
+\usepackage{lipsum}
+\usepackage{fancyvrb}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage[export]{adjustbox}
+\graphicspath{ {./images/} }
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{float}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{capt-of}
+\usepackage{tcolorbox}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{hyperref} 
+\usepackage{xcolor} % For custom colors
+\lstset{
+	language=Python,                % Choose the language (e.g., Python, C, R)
+	basicstyle=\ttfamily\small, % Font size and type
+	keywordstyle=\color{blue},  % Keywords color
+	commentstyle=\color{gray},  % Comments color
+	stringstyle=\color{red},    % String color
+	numbers=left,               % Line numbers
+	numberstyle=\tiny\color{gray}, % Line number style
+	stepnumber=1,               % Numbering step
+	breaklines=true,            % Auto line break
+	backgroundcolor=\color{black!5}, % Light gray background
+	frame=single,               % Frame around the code
+}
+\usepackage{float}
+\usepackage[]{amsthm} %lets us use \begin{proof}
+	\usepackage[]{amssymb} %gives us the character \varnothing
+	
+	\title{Homework 1, IEOR 6614}
+	\author{Zongyi Liu}
+	\date{Wed, Jan 28, 2026}
+	\begin{document}
+		\maketitle
+		
+		\section{Question 1}
+		A spanning tree $T$ is a \emph{bottleneck spanning tree} if the maximum arc cost in
+		$T$ is as small as possible from among all spanning trees.
+		Show that a minimum spanning tree of $G$ is also a bottleneck spanning tree of $G$.
+		Is the converse also true? Why or why not?
+		
+		\textbf{Answer}
+		
+		
+		\clearpage
+		
+	
+	\section{Question 2}
+	
+	Suppose, in the linear-time minimum spanning tree algorithm, we don’t start with
+	running 3 iterations of the Bor{\r u}vka algorithm, but instead start with 1.
+	Is the resulting algorithm still linear time?
+	Either prove that it is, or explain how the analysis from class breaks down.
+	What if we run 2 iterations of the Boruvka algorithm?
+	How about 4?
+	
+		\textbf{Answer}
+
+		\clearpage
+		
+		\section{Question 3}
+		
+		The Bellman--Ford algorithm does not specify the order in which to relax edges in
+		each pass. Consider the following method for deciding upon the order. Before the
+		first pass, assign an arbitrary linear order $v_1, v_2, \ldots, v_{|V|}$ to the
+		vertices of the input graph $G = (V,E)$. Then partition the edge set $E$ into
+		$E_f \cup E_b$, where
+		\[
+		E_f = \{(v_i, v_j) \in E \mid i < j\}
+		\quad\text{and}\quad
+		E_b = \{(v_i, v_j) \in E \mid i > j\}.
+		\]
+		(Assume that $G$ contains no self-loops, so that every edge belongs to either
+		$E_f$ or $E_b$.) Define $G_f = (V, E_f)$ and $G_b = (V, E_b)$.
+		
+		\begin{enumerate}
+			\item Prove that $G_f$ is acyclic with topological sort
+			$\langle v_1, v_2, \ldots, v_{|V|} \rangle$ and that $G_b$ is acyclic with
+			topological sort $\langle v_{|V|}, v_{|V|-1}, \ldots, v_1 \rangle$.
+			
+			\item Suppose that each pass of the Bellman--Ford algorithm relaxes edges in the
+			following way. First, visit each vertex in the order
+			$v_1, v_2, \ldots, v_{|V|}$, relaxing edges of $E_f$ that leave the vertex. Then
+			visit each vertex in the order
+			$v_{|V|}, v_{|V|-1}, \ldots, v_1$, relaxing edges of $E_b$ that leave the vertex.
+			Prove that with this scheme, if $G$ contains no negative-weight cycles that are
+			reachable from the source vertex $s$, then after only $\lceil |V|/2 \rceil$
+			passes over the edges, $v.d = \delta(s,v)$ for all vertices $v \in V$.
+			
+			\item Does this scheme improve the asymptotic running time of the Bellman--Ford
+			algorithm?
+		\end{enumerate}
+		
+		
+		\textbf{Answer}
+		
+		\clearpage
+		\section{Question 4}
+		
+		Suppose that you have a graph where the weights are integers between $0$ and $C$
+		for some constant $C$. Show how to implement Dijkstra's algorithm in
+		$O(n+m)$ time.
+		
+		\textbf{Answer}
+		
+		
+		
+	\end{document}
