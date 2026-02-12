@@ -37,6 +37,8 @@
 \usepackage{float}
 \usepackage{listings}
 \usepackage{hyperref} 
+\usepackage{fontspec}
+\definecolor{deepred}{RGB}{139,0,0}
 \usepackage{xcolor} % For custom colors
 \lstset{
 	language=Python,                % Choose the language (e.g., Python, C, R)
@@ -62,6 +64,8 @@
 		\maketitle
 		
 		\section{Question 1}
+		
+		{\color{deepred}\fontspec{Georgia} Reduction} 
 		
 		Suppose you do not want to use the minimum-mean cycle algorithm given in class and in the book, but instead have access to a "Negative Cycle Detection" black box (like Bellman-Ford).
 		
@@ -182,7 +186,9 @@
 	
 	\section{Question 2}
 	
-	Show how to find a blocking flow in an acyclic network in $O(n m)$ time by successively augmenting along a path of non-saturated edges and using depth-first search to find such a path. Show how to obtain a running time of $O(m)$ if all edges that are not incident to $s$ or $t$ have capacity 1 .
+	{\color{deepred}\fontspec{Georgia} Blocking Flow Detection} 
+	
+	 Show how to find a blocking flow in an acyclic network in $O(n m)$ time by successively augmenting along a path of non-saturated edges and using depth-first search to find such a path. Show how to obtain a running time of $O(m)$ if all edges that are not incident to $s$ or $t$ have capacity 1 .
 	
 	
 		\textbf{Answer}
@@ -291,7 +297,10 @@
 		\clearpage
 		
 		\section{Question 3}
-		(Exercise 4, Chapter 8 from the book of Korte \& Vygen) A circulation is an $s-t$ flow with the extra property that the excess at $s$ and $t$ is 0 . Prove Hoffman's circulation theorem: Given a digraph $D(V, A)$ and lower and upper capacities $l, u: E(G) \rightarrow \mathbb{R}_{+}$with $l(a) \leq u(a)$ for all $a \in A$, there is circulation $f$ with $l(a) \leq f(a) \leq u(a)$ for all $a \in E(G)$ if and only if
+		
+		{\color{deepred}\fontspec{Georgia} Hoffman's Circulation Theorem \small{(Exercise 4, Chapter 8 from the book of Korte \& Vygen)}} 
+		
+		 A circulation is an $s-t$ flow with the extra property that the excess at $s$ and $t$ is 0 . Prove Hoffman's circulation theorem: Given a digraph $D(V, A)$ and lower and upper capacities $l, u: E(G) \rightarrow \mathbb{R}_{+}$with $l(a) \leq u(a)$ for all $a \in A$, there is circulation $f$ with $l(a) \leq f(a) \leq u(a)$ for all $a \in E(G)$ if and only if
 		
 		$$
 		\sum_{a \in \delta^{-}(X)} l(a) \leq \sum_{a \in \delta^{+}(X)} u(a) \quad \text { for all } X \subseteq V(G) .
@@ -413,6 +422,9 @@
 		\clearpage
 		
 		\section{Question 4}
+		
+		{\color{deepred}\fontspec{Georgia} Scaling}
+		
 		In this exercise, we see another modification of the Ford-Fulkerson algorithm that improves its running time.
 		
 		Given a network $D(V, A)$ where, without loss of generality, we assume all edge capacities $u$ are integers, a feasible flow $f$, and a parameter $\Delta$, define the $\Delta$-residual network as the residual network of $D(V, A)$ with respect to $f$, containing only the arcs with capacity at least $\Delta$. Let $D_{f}(\Delta)$ denote the $\Delta$-residual network. Let $m$ be the number of $\operatorname{arcs}$ of $D$. Consider the following algorithm to find the maximum flow:
@@ -578,6 +590,9 @@
 		\clearpage
 		
 		\section{Question 5}
+		
+		{\color{deepred}\fontspec{Georgia} Edmonds-Karp Algorithm}
+		
 		The Edmonds-Karp algorithm implements the Ford-Fulkerson algorithm by always choosing a shortest augmenting path in the residual network. Suppose instead that the Ford-Fulkerson algorithm chooses a widest augmenting path: an augmenting path with the greatest residual capacity. Assume that $G=(V, E)$ is a flow network with source $s$ and sink $t$, that all capacities are integer, and that the largest capacity is $C$. In this problem, you will show that choosing a widest augmenting path results in at most $|E| \ln \left|f^{*}\right|$ augmentations to find a maximum flow $f^{*}$.
 		
 		\begin{enumerate}
@@ -752,6 +767,9 @@
 	\clearpage
 	
 	\section{Question 6}
+	
+	{\color{deepred}\fontspec{Georgia} Path Cover}
+	
 	A path cover of a directed graph $G=(V, E)$ is a set $P$ of vertex-disjoint paths such that every vertex in $V$ is included in exactly one path in $P$. Paths may start and end anywhere, and they may be of any length, including 0. A minimum path cover of $G$ is a path cover containing the fewest possible paths.
 	
 	\begin{itemize}
@@ -805,7 +823,6 @@ and each $y_j$ can receive at most one unit from the left side (since the only o
 arc from $y_j$ is $(y_j,t)$ of capacity $1$). Thus the used $(x_i,y_j)$ edges are
 vertex-disjoint on both sides, i.e.\ a matching. Conversely, any matching yields a feasible
 flow of the same value by sending $1$ along $s\to x_i \to y_j \to t$ for each matched pair.
-\hfill $\square$
 
 \medskip
 \emph{Claim 2 (minimum path cover size).}
