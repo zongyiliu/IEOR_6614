@@ -1,105 +1,172 @@
-\documentclass[10pt]{article}
+\documentclass[letterpaper]{article} 
 \usepackage[utf8]{inputenc}
+\linespread{0.85}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{hyperref}
 \usepackage[version=4]{mhchem}
 \usepackage{stmaryrd}
-\usepackage{bbold}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{capt-of}
+\usepackage{lipsum}
+\usepackage{fancyvrb}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage[export]{adjustbox}
+\graphicspath{ {./images/} }
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{float}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{capt-of}
+\usepackage{tcolorbox}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{hyperref} 
+\usepackage{xcolor} % For custom colors
+\lstset{
+	language=Python,                % Choose the language (e.g., Python, C, R)
+	basicstyle=\ttfamily\small, % Font size and type
+	keywordstyle=\color{blue},  % Keywords color
+	commentstyle=\color{gray},  % Comments color
+	stringstyle=\color{red},    % String color
+	numbers=left,               % Line numbers
+	numberstyle=\tiny\color{gray}, % Line number style
+	stepnumber=1,               % Numbering step
+	breaklines=true,            % Auto line break
+	backgroundcolor=\color{black!5}, % Light gray background
+	frame=single,               % Frame around the code
+}
+\usepackage{float}
+\usepackage[]{amsthm} %lets us use \begin{proof}
+	\usepackage[]{amssymb} %gives us the character \varnothing
+	
+	\title{Homework 2, IEOR 6614}
+	\author{Zongyi Liu}
+	\date{Wed, Feb 11, 2026}
+	\begin{document}
+		\maketitle
+		
+		\section{Question 1}
+		
+		Suppose you do not want to use the minimum-mean cycle algorithm given in class and in the book, but instead have access to a "Negative Cycle Detection" black box (like Bellman-Ford).
+		
+		\begin{itemize}
+			\item Show that for any real number $\lambda$, the problem of determining if $\mu^{*} \leq \lambda$ can be reduced to the problem of detecting a negative cycle in a modified graph.
+			\item Using this reduction, describe an algorithm to find an $\epsilon$-approximate value of $\mu^{*}$ using binary search. What is the range of values for the binary search if all edge weights are integers in $[-W, W]$ ?
+		\end{itemize}
+		
+		\textbf{Answer}
+		
+		\clearpage
+	
+	\section{Question 2}
+	
+	Show how to find a blocking flow in an acyclic network in $O(n m)$ time by successively augmenting along a path of non-saturated edges and using depth-first search to find such a path. Show how to obtain a running time of $O(m)$ if all edges that are not incident to $s$ or $t$ have capacity 1 .
+	
+	
+		\textbf{Answer}
 
-\author{Instructor: Cliff Stein}
-\date{}
-
-
-\begin{document}
-\maketitle
-\section*{Homework 1: Due on February 20 by 5:00 pm}
-Instructions. Please follow the homework policy and submission instructions in the Course Information handout. A few highlights to remember:
-
-\begin{itemize}
-  \item follow the collaboration and academic honesty policies;
-  \item submission is via gradescope (you are encouraged to use LaTeX, using the provided template);
-\end{itemize}
-
-Note that, for each bullet item of a problem, you can use the previous bullets as "black box", even if you didn't manage to solve them. Similarly, you can use anything from the lectures as black-box.
-
-\section*{Problem 1}
-Suppose you do not want to use the minimum-mean cycle algorithm given in class and in the book, but instead have access to a "Negative Cycle Detection" black box (like Bellman-Ford).
-
-\begin{itemize}
-  \item Show that for any real number $\lambda$, the problem of determining if $\mu^{*} \leq \lambda$ can be reduced to the problem of detecting a negative cycle in a modified graph.
-  \item Using this reduction, describe an algorithm to find an $\epsilon$-approximate value of $\mu^{*}$ using binary search. What is the range of values for the binary search if all edge weights are integers in $[-W, W]$ ?
-\end{itemize}
-
-\section*{Problem 2}
-Show how to find a blocking flow in an acyclic network in $O(n m)$ time by successively augmenting along a path of non-saturated edges and using depth-first search to find such a path. Show how to obtain a running time of $O(m)$ if all edges that are not incident to $s$ or $t$ have capacity 1 .
-
-\section*{Problem 3}
-(Exercise 4, Chapter 8 from the book of Korte \& Vygen) A circulation is an $s-t$ flow with the extra property that the excess at $s$ and $t$ is 0 . Prove Hoffman's circulation theorem: Given a digraph $D(V, A)$ and lower and upper capacities $l, u: E(G) \rightarrow \mathbb{R}_{+}$with $l(a) \leq u(a)$ for all $a \in A$, there is circulation $f$ with $l(a) \leq f(a) \leq u(a)$ for all $a \in E(G)$ if and only if
-
-$$
-\sum_{a \in \delta^{-}(X)} l(a) \leq \sum_{a \in \delta^{+}(X)} u(a) \quad \text { for all } X \subseteq V(G) .
-$$
-
-Note: Hoffman's circulation theorem in turn quite easily implies the Max-Flow Min-Cut Theorem (Hoffman [1960]).
-
-\section*{Problem 4}
-In this exercise, we see another modification of the Ford-Fulkerson algorithm that improves its running time.
-
-Given a network $D(V, A)$ where, without loss of generality, we assume all edge capacities $u$ are integers, a feasible flow $f$, and a parameter $\Delta$, define the $\Delta$-residual network as the residual network of $D(V, A)$ with respect to $f$, containing only the arcs with capacity at least $\Delta$. Let $D_{f}(\Delta)$ denote the $\Delta$-residual network. Let $m$ be the number of $\operatorname{arcs}$ of $D$. Consider the following algorithm to find the maximum flow:
-
-\begin{verbatim}
-Algorithm 1
-    Initialize $f \leftarrow 0, \Delta \leftarrow 2^{\lfloor\log U\rfloor}$ where $U$ denote the large st arc capacity, $\Delta$-residual network $D_{f}(\Delta)$ with
-    residual capacities $u_{f}(a) \geq \Delta$ for all $a \in D_{f}(\Delta)$
-    while $\Delta \geq 1$ do
-        while $D_{f}(\Delta)$ contains an ( $s-t$ )-path do
-            Identify an $(s-t)$-path $P$ in $D_{f}(\Delta)$
-            $f^{\star} \leftarrow \min _{a \in P} u_{f}(a)$
-            Obtain new flow $f$ by augmenting $f^{\star}$ units of flow along $P$ and update $D_{f}(\Delta)$ and $u_{f}$
-        $\Delta \leftarrow \Delta / 2$
-    return flow $f$
-\end{verbatim}
-
-\begin{enumerate}
-  \item Prove that upon termination, the algorithm outputs the maximum flow.
-  \item We refer to a phase of the algorithm during which $\Delta$ remains constant as a scaling phase. Show that the algorithm terminates after $O(\log U)$ scaling phases.
-  \item Let $f^{\prime}$ be the value of the flow at the end of a scaling phase for some fixed $\Delta$. Let $D_{f^{\prime}}$ be the residual network of $D(V, A)$ with respect to flow $f^{\prime}$. Prove that the capacity of the minimum cut i n $D_{f^{\prime}}$ is at most $m \Delta$.
-  \item Show that the algorithm performs at most $2 m$ augmentations per scaling phase. Hint: Build on (c).
-  \item Conclude that the total running time of the algorithm is $O\left(m^{2} \log U\right)$.
-\end{enumerate}
-
-\section*{Problem 5}
-The Edmonds-Karp algorithm implements the Ford-Fulkerson algorithm by always choosing a shortest augmenting path in the residual network. Suppose instead that the Ford-Fulkerson algorithm chooses a widest augmenting path: an augmenting path with the greatest residual capacity. Assume that $G=(V, E)$ is a flow network with source $s$ and sink $t$, that all capacities are integer, and that the largest capacity is $C$. In this problem, you will show that choosing a widest augmenting path results in at most $|E| \ln \left|f^{*}\right|$ augmentations to find a maximum flow $f^{*}$.
-
-\begin{enumerate}
-  \item Show how to adjust Dijkstra's algorithm to find the widest augmenting path in the residual network.
-  \item Show that a maximum flow in $G$ can be formed by successive flow augmentations along at most $|E|$ paths from $s$ to $t$.
-  \item Given a flow $f$, argue that the residual network has an augmenting path $p$ with residual capacity $(p) \geq\left(\left|f^{*}\right|-|f|\right) /|E|$.
-  \item Assuming that each augmenting path is a widest augmenting path, let $f_{i}$ be the flow after augmenting the flow by the $i$ th augmenting path, where $f_{0}$ has $f(u, v)=0$ for all edges $(u, v)$. Show that $\left|f^{*}\right|-\left|f_{i}\right| \leq\left|f^{*}\right|(1-1 /|E|)^{i}$.
-  \item Show that $\left|f^{*}\right|-\left|f_{i}\right|<\left|f^{*}\right| e^{-i /|E|}$.
-  \item Conclude that after the flow is augmented at most $|E| \ln \left|f^{*}\right|$ times, the flow is a maximum flow.
-\end{enumerate}
-
-\section*{Problem 6}
-A path cover of a directed graph $G=(V, E)$ is a set $P$ of vertex-disjoint paths such that every vertex in $V$ is included in exactly one path in $P$. Paths may start and end anywhere, and they may be of any length, including 0. A minimum path cover of $G$ is a path cover containing the fewest possible paths.
-
-\begin{itemize}
-  \item Give an efficient algorithm to find a minimum path cover of a directed acyclic graph $G=(V, E)$. (Assuming that $V=1,2, \ldots, n$, construct a flow network based on the graph $G^{\prime}=\left(V^{\prime}, E^{\prime}\right)$, where
-\end{itemize}
-
-$$
-\begin{aligned}
-V^{\prime} & =x_{0}, x_{1}, \ldots, x_{n} \cup y_{0}, y_{1}, \ldots, y_{n} \\
-E^{\prime} & =\left(x_{0}, x_{i}\right) i \in V \cup\left(y_{i}, y_{0}\right) i \in V \cup\left(x_{i}, y_{j}\right)(i, j) \in E
-\end{aligned}
-$$
-
-and run a maximum-flow algorithm.)
-
-\begin{itemize}
-  \item Does your algorithm work for directed graphs that contain cycles? Explain.
-\end{itemize}
-
-\end{document}
+		
+		\clearpage
+		
+		\section{Question 3}
+		(Exercise 4, Chapter 8 from the book of Korte \& Vygen) A circulation is an $s-t$ flow with the extra property that the excess at $s$ and $t$ is 0 . Prove Hoffman's circulation theorem: Given a digraph $D(V, A)$ and lower and upper capacities $l, u: E(G) \rightarrow \mathbb{R}_{+}$with $l(a) \leq u(a)$ for all $a \in A$, there is circulation $f$ with $l(a) \leq f(a) \leq u(a)$ for all $a \in E(G)$ if and only if
+		
+		$$
+		\sum_{a \in \delta^{-}(X)} l(a) \leq \sum_{a \in \delta^{+}(X)} u(a) \quad \text { for all } X \subseteq V(G) .
+		$$
+		
+		Note: Hoffman's circulation theorem in turn quite easily implies the Max-Flow Min-Cut Theorem (Hoffman [1960]).
+		
+		
+		\textbf{Answer}
+		
+		
+		\clearpage
+		
+		\section{Question 4}
+		In this exercise, we see another modification of the Ford-Fulkerson algorithm that improves its running time.
+		
+		Given a network $D(V, A)$ where, without loss of generality, we assume all edge capacities $u$ are integers, a feasible flow $f$, and a parameter $\Delta$, define the $\Delta$-residual network as the residual network of $D(V, A)$ with respect to $f$, containing only the arcs with capacity at least $\Delta$. Let $D_{f}(\Delta)$ denote the $\Delta$-residual network. Let $m$ be the number of $\operatorname{arcs}$ of $D$. Consider the following algorithm to find the maximum flow:
+		
+		\begin{algorithm}[H]
+			\caption{Algorithm 1}
+			Initialize $f \leftarrow 0, \Delta \leftarrow 2^{\lfloor \log U \rfloor}$ where $U$ denote the largest arc capacity, $\Delta$-residual network $D_f(\Delta)$ with residual capacities $u_f(a) \geq \Delta$ for all $a \in D_f(\Delta)$\;
+			\While{$\Delta \geq 1$}{
+				\While{$D_f(\Delta)$ contains an $(s-t)$-path}{
+					Identify an $(s-t)$-path $P$ in $D_f(\Delta)$\;
+					$f^\star \leftarrow \min_{a \in P} u_f(a)$\;
+					Obtain new flow $f$ by augmenting $f^\star$ units of flow along $P$ and update $D_f(\Delta)$ and $u_f$\;
+				}
+				$\Delta \leftarrow \Delta/2$\;
+			}
+			\Return{flow $f$}
+		\end{algorithm}
+		
+		\begin{enumerate}
+			\item Prove that upon termination, the algorithm outputs the maximum flow.
+			\item We refer to a phase of the algorithm during which $\Delta$ remains constant as a scaling phase. Show that the algorithm terminates after $O(\log U)$ scaling phases.
+			\item Let $f^{\prime}$ be the value of the flow at the end of a scaling phase for some fixed $\Delta$. Let $D_{f^{\prime}}$ be the residual network of $D(V, A)$ with respect to flow $f^{\prime}$. Prove that the capacity of the minimum cut i n $D_{f^{\prime}}$ is at most $m \Delta$.
+			\item Show that the algorithm performs at most $2 m$ augmentations per scaling phase. Hint: Build on (c).
+			\item Conclude that the total running time of the algorithm is $O\left(m^{2} \log U\right)$.
+		\end{enumerate}
+	
+	\textbf{Answer}
+	
+		\clearpage
+		
+		\section{Question 5}
+		The Edmonds-Karp algorithm implements the Ford-Fulkerson algorithm by always choosing a shortest augmenting path in the residual network. Suppose instead that the Ford-Fulkerson algorithm chooses a widest augmenting path: an augmenting path with the greatest residual capacity. Assume that $G=(V, E)$ is a flow network with source $s$ and sink $t$, that all capacities are integer, and that the largest capacity is $C$. In this problem, you will show that choosing a widest augmenting path results in at most $|E| \ln \left|f^{*}\right|$ augmentations to find a maximum flow $f^{*}$.
+		
+		\begin{enumerate}
+			\item Show how to adjust Dijkstra's algorithm to find the widest augmenting path in the residual network.
+			\item Show that a maximum flow in $G$ can be formed by successive flow augmentations along at most $|E|$ paths from $s$ to $t$.
+			\item Given a flow $f$, argue that the residual network has an augmenting path $p$ with residual capacity $(p) \geq\left(\left|f^{*}\right|-|f|\right) /|E|$.
+			\item Assuming that each augmenting path is a widest augmenting path, let $f_{i}$ be the flow after augmenting the flow by the $i$ th augmenting path, where $f_{0}$ has $f(u, v)=0$ for all edges $(u, v)$. Show that $\left|f^{*}\right|-\left|f_{i}\right| \leq\left|f^{*}\right|(1-1 /|E|)^{i}$.
+			\item Show that $\left|f^{*}\right|-\left|f_{i}\right|<\left|f^{*}\right| e^{-i /|E|}$.
+			\item Conclude that after the flow is augmented at most $|E| \ln \left|f^{*}\right|$ times, the flow is a maximum flow.
+		\end{enumerate}
+	
+	
+		\textbf{Answer}
+	
+	\clearpage
+	
+	\section{Question 6}
+	A path cover of a directed graph $G=(V, E)$ is a set $P$ of vertex-disjoint paths such that every vertex in $V$ is included in exactly one path in $P$. Paths may start and end anywhere, and they may be of any length, including 0. A minimum path cover of $G$ is a path cover containing the fewest possible paths.
+	
+	\begin{itemize}
+		\item Give an efficient algorithm to find a minimum path cover of a directed acyclic graph $G=(V, E)$. (Assuming that $V=1,2, \ldots, n$, construct a flow network based on the graph $G^{\prime}=\left(V^{\prime}, E^{\prime}\right)$, where
+	\end{itemize}
+	
+	$$
+	\begin{aligned}
+		V^{\prime} & =x_{0}, x_{1}, \ldots, x_{n} \cup y_{0}, y_{1}, \ldots, y_{n} \\
+		E^{\prime} & =\left(x_{0}, x_{i}\right) i \in V \cup\left(y_{i}, y_{0}\right) i \in V \cup\left(x_{i}, y_{j}\right)(i, j) \in E
+	\end{aligned}
+	$$
+	
+	and run a maximum-flow algorithm.)
+	
+	\begin{itemize}
+		\item Does your algorithm work for directed graphs that contain cycles? Explain.
+	\end{itemize}
+		
+		
+		
+	\end{document}
