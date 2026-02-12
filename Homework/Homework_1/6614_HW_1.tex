@@ -1,0 +1,385 @@
+\documentclass[letterpaper]{article} 
+\usepackage[utf8]{inputenc}
+\linespread{0.85}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[version=4]{mhchem}
+\usepackage{stmaryrd}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{capt-of}
+\usepackage{lipsum}
+\usepackage{fancyvrb}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage[export]{adjustbox}
+\graphicspath{ {./images/} }
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{float}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{capt-of}
+\usepackage{tcolorbox}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{hyperref} 
+\usepackage{xcolor} % For custom colors
+\lstset{
+	language=Python,                % Choose the language (e.g., Python, C, R)
+	basicstyle=\ttfamily\small, % Font size and type
+	keywordstyle=\color{blue},  % Keywords color
+	commentstyle=\color{gray},  % Comments color
+	stringstyle=\color{red},    % String color
+	numbers=left,               % Line numbers
+	numberstyle=\tiny\color{gray}, % Line number style
+	stepnumber=1,               % Numbering step
+	breaklines=true,            % Auto line break
+	backgroundcolor=\color{black!5}, % Light gray background
+	frame=single,               % Frame around the code
+}
+\usepackage{float}
+\usepackage[]{amsthm} %lets us use \begin{proof}
+	\usepackage[]{amssymb} %gives us the character \varnothing
+	
+	\title{Homework 1, IEOR 6614}
+	\author{Zongyi Liu}
+	\date{Wed, Jan 28, 2026}
+	\begin{document}
+		\maketitle
+		
+		\section{Question 1}
+		A spanning tree $T$ is a \emph{bottleneck spanning tree} if the maximum arc cost in
+		$T$ is as small as possible from among all spanning trees.
+		Show that a minimum spanning tree of $G$ is also a bottleneck spanning tree of $G$.
+		Is the converse also true? Why or why not?
+		
+		\textbf{Answer}
+		
+		
+		Let $T$ be an MST of $G$ and let $
+		b = \max_{e\in T} w(e).$ Choose an edge $e^\ast \in T$ with $w(e^\ast)=b$.
+		Removing $e^\ast$ partitions $T$ into two components with vertex sets
+		$(S, V\setminus S)$, defining a cut of $G$.
+		By the cut property, $e^\ast$ is a minimum-weight edge crossing this cut; otherwise
+		there would exist an edge $f$ crossing the same cut with $w(f) < w(e^\ast)$, and
+		$T - e^\ast + f$ would be a spanning tree of smaller total weight, contradicting
+		the minimality of $T$.
+		Hence every edge crossing the cut has weight at least $b$.
+		
+		Any spanning tree must contain some edge crossing this cut, and therefore must
+		contain an edge of weight at least $b$.
+		Thus no spanning tree can have maximum edge weight smaller than $b$, and $T$
+		minimizes the maximum edge weight among all spanning trees.
+		\hfill$\square$
+		
+		\medskip
+		
+		\emph{Converse:} 
+		The converse is not true.
+		A bottleneck spanning tree minimizes only the maximum edge weight and does not
+		necessarily minimize the total weight.
+		There may exist spanning trees with the same minimum bottleneck value but with
+		larger total weight than an MST; such trees are bottleneck spanning trees but are
+		not minimum spanning trees.
+		\clearpage
+		
+	
+	\section{Question 2}
+	
+	Suppose, in the linear-time minimum spanning tree algorithm, we don’t start with
+	running 3 iterations of the Bor{\r u}vka algorithm, but instead start with 1.
+	Is the resulting algorithm still linear time?
+	Either prove that it is, or explain how the analysis from class breaks down.
+	What if we run 2 iterations of the Boruvka algorithm?
+	How about 4?
+	
+		\textbf{Answer}
+
+		In the Karger--Klein--Tarjan style linear-time MST algorithm, we use a constant
+		number $k$ of Bor{\r u}vka iterations to shrink the number of vertices/components,
+		then apply the sampling--filtering step.
+		
+		Each Bor{\r u}vka iteration can be implemented in $O(m)$ time and reduces the number
+		of components (hence contracted vertices) by at least a factor of $2$.
+		Thus after $k$ iterations, the contracted graph has $
+		n' \;\le\; \frac{n}{2^k}$ vertices.
+		
+		The sampling lemma used in class implies that after sampling and filtering with
+		respect to the MST of the sampled graph, the number of remaining (``$F$-light'')
+		edges is $O(n')$ in expectation.
+		Hence (writing $T(m,n)$ for expected running time) we obtain a recurrence of the form $
+		T(m,n)\;\le\; T\!\left(\frac{m}{2},\,\frac{n}{2^k}\right)\;+\;T\!\left(c\frac{n}{2^k},\,\frac{n}{2^k}\right)\;+\;O(m),$ for some constant $c$, where the $O(m)$ term accounts for the Bor{\r u}vka work,
+		sampling, filtering, and contractions at the current level.
+	
+		Unrolling the recurrence over the ``$m/2$'' branch gives an $O(m)$ geometric series:
+		\[
+		O(m) + O\!\left(\frac{m}{2}\right) + O\!\left(\frac{m}{4}\right)+\cdots = O(m).
+		\]
+		For the ``$O(n')$-edge'' branch, the vertex parameter shrinks by a factor $2^k$ each
+		level along the recursion, so the total contribution is
+		\[
+		O\!\left(\frac{n}{2^k}\right)\;+\;O\!\left(\frac{n}{2^{2k}}\right)\;+\;O\!\left(\frac{n}{2^{3k}}\right)\;+\cdots
+		\;=\;O(n)
+		\quad\text{for any constant }k\ge 1.
+		\]
+		Therefore, for any constant $k\ge 1$, $
+		T(m,n)=O(m+n),$ i.e.\ the algorithm remains linear time (in expectation) even if we start with only
+		$k=1$ Bor{\r u}vka iteration.
+		
+		We consider several cases:
+		\begin{itemize}
+			\item \emph{1 iteration ($k=1$):} still linear time. The analysis works because the
+			$n$-terms form the geometric series $n/2+n/4+n/8+\cdots=O(n)$.
+			
+			\item \emph{2 iterations ($k=2$):} still linear time, with an even smaller $n$-series
+			$n/4+n/16+n/64+\cdots=O(n)$.
+			
+			\item \emph{4 iterations ($k=4$):} still linear time; this only improves constants,
+			since $n' \le n/16$ after the contraction.
+		\end{itemize}
+		
+		If we ran \emph{zero} Bor{\r u}vka iterations ($k=0$), the recurrence would have the form
+		\[
+		T(m,n)\;\le\;T\!\left(\frac{m}{2},n\right)+T(O(n),n)+O(m),
+		\]
+		and the $T(O(n),n)$ term would contribute $O(n)$ at each of $\Theta(\log m)$ levels,
+		yielding $O(n\log m)$ when $m=O(n)$, i.e.\ not linear.
+		This is precisely why we need at least one Bor{\r u}vka iteration, while any
+		constant number $k\ge 1$ preserves linear time.
+		
+		
+		\clearpage
+		
+		\section{Question 3}
+		
+		The Bellman--Ford algorithm does not specify the order in which to relax edges in
+		each pass. Consider the following method for deciding upon the order. Before the
+		first pass, assign an arbitrary linear order $v_1, v_2, \ldots, v_{|V|}$ to the
+		vertices of the input graph $G = (V,E)$. Then partition the edge set $E$ into
+		$E_f \cup E_b$, where
+		\[
+		E_f = \{(v_i, v_j) \in E \mid i < j\}
+		\quad\text{and}\quad
+		E_b = \{(v_i, v_j) \in E \mid i > j\}.
+		\]
+		(Assume that $G$ contains no self-loops, so that every edge belongs to either
+		$E_f$ or $E_b$.) Define $G_f = (V, E_f)$ and $G_b = (V, E_b)$.
+		
+		\begin{enumerate}
+			\item Prove that $G_f$ is acyclic with topological sort
+			$\langle v_1, v_2, \ldots, v_{|V|} \rangle$ and that $G_b$ is acyclic with
+			topological sort $\langle v_{|V|}, v_{|V|-1}, \ldots, v_1 \rangle$.
+			
+			\item Suppose that each pass of the Bellman--Ford algorithm relaxes edges in the
+			following way. First, visit each vertex in the order
+			$v_1, v_2, \ldots, v_{|V|}$, relaxing edges of $E_f$ that leave the vertex. Then
+			visit each vertex in the order
+			$v_{|V|}, v_{|V|-1}, \ldots, v_1$, relaxing edges of $E_b$ that leave the vertex.
+			Prove that with this scheme, if $G$ contains no negative-weight cycles that are
+			reachable from the source vertex $s$, then after only $\lceil |V|/2 \rceil$
+			passes over the edges, $v.d = \delta(s,v)$ for all vertices $v \in V$.
+			
+			\item Does this scheme improve the asymptotic running time of the Bellman--Ford
+			algorithm?
+		\end{enumerate}
+		
+		
+		\textbf{Answer}
+		
+		\subsection{Part 1}
+		By definition, every edge in $E_f$ has the form $(v_i,v_j)$ with $i<j$. Hence along
+		any directed walk in $G_f$, the vertex indices strictly increase. In particular,
+		a directed cycle would force indices to strictly increase and return to the
+		starting vertex, which is impossible. Therefore $G_f$ is acyclic. Moreover, the
+		order $\langle v_1,v_2,\dots,v_{|V|}\rangle$ is a topological ordering of $G_f$
+		because every edge goes from a smaller index to a larger index.
+		
+		Similarly, every edge in $E_b$ has the form $(v_i,v_j)$ with $i>j$, so along any
+		directed walk in $G_b$ the indices strictly decrease. Thus $G_b$ is acyclic, and
+		$\langle v_{|V|},v_{|V|-1},\dots,v_1\rangle$ is a topological ordering of $G_b$.
+		
+		\subsection{Part 2}
+		Assume there is no negative-weight cycle reachable from $s$.
+		Let a \emph{pass} mean: relax all edges of $E_f$ in the forward vertex order, then
+		relax all edges of $E_b$ in the backward vertex order.
+		
+		\medskip
+		
+		\emph{Lemma} After the forward sweep of any pass, for every vertex $v_j$,
+		the value $d[v_j]$ equals the minimum weight among all $s\!\to\! v_j$ paths whose
+		last edge lies in $E_f$; after the backward sweep of that same pass, $d[v_j]$
+		equals the minimum weight among all $s\!\to\! v_j$ paths whose last edge lies in
+		$E_b$ as well. Consequently, after a full pass,
+		\[
+		d[v] \;=\; \min\{\text{weight}(P): P \text{ is an } s\!\to\! v \text{ path that can be
+			written as } P=P_1P_2\},
+		\]
+		where $P_1$ uses only edges of $E_f$ and $P_2$ uses only edges of $E_b$ (either part
+		may be empty).
+		
+		\medskip
+		
+		\emph{Proof of lemma}
+		Consider the forward sweep. Since $G_f$ is acyclic with topological order
+		$\langle v_1,\dots,v_{|V|}\rangle$, relaxing all outgoing $E_f$-edges in this order
+		computes correct shortest-path distances in $G_f$ (standard DP on a DAG) using the
+		current $d[\cdot]$ values as sources. Thus, after the forward sweep, $d[v_j]$ is
+		the minimum over all paths that end with an $E_f$-edge (or use only $E_f$ after
+		leaving $s$). The same argument applies to the backward sweep on the DAG $G_b$
+		with topological order $\langle v_{|V|},\dots,v_1\rangle$. \hfill$\square$
+		
+		\medskip
+		
+		Now take any vertex $v$ and fix a shortest $s\!\to\! v$ path $P$ in $G$.
+		Because there are no reachable negative cycles, $P$ can be chosen \emph{simple},
+		hence uses at most $|V|-1$ edges.
+		Write the vertices of $P$ in the global order indices; along $P$, every edge is
+		either forward (index increases) or backward (index decreases). Let $k(P)$ be the
+		number of \emph{direction changes} along $P$ (from forward to backward or vice
+		versa). Each direction change requires at least one edge, so
+		\[
+		k(P) \le |E(P)|-1 \le (|V|-1)-1 = |V|-2.
+		\]
+		Therefore $P$ has at most $k(P)+1 \le |V|-1$ monotone segments, where each segment
+		consists solely of forward edges or solely of backward edges.
+		
+		A single full pass (forward sweep then backward sweep) can correctly propagate
+		shortest-path information across \emph{two} consecutive monotone segments of $P$:
+		one forward segment is handled by the forward sweep on $G_f$, and the subsequent
+		backward segment is handled by the backward sweep on $G_b$ (the lemma formalizes
+		this). Thus after $t$ passes, all shortest paths whose decomposition into monotone
+		segments has at most $2t$ segments have been fully propagated, so $d[v]=\delta(s,v)$
+		for all vertices reachable by such paths.
+		
+		Since any simple path has at most $|V|-1$ segments, choosing
+		\[
+		2t \ge |V|-1 \quad\Longleftrightarrow\quad t \ge \left\lceil \frac{|V|-1}{2}\right\rceil
+		\]
+		is sufficient. Hence after $\left\lceil |V|/2\right\rceil$ passes, we obtain
+		$d[v]=\delta(s,v)$ for all $v\in V$.
+		
+		\subsection{Part 3}
+		Each pass relaxes every edge once, so it costs $\Theta(m)$ time.
+		The number of passes is $\left\lceil |V|/2\right\rceil = \Theta(|V|)$, so the total
+		running time is $\Theta(m|V|)$, which is the same asymptotic bound as standard
+		Bellman--Ford (improving only the constant factor by about $2$).
+		
+		
+		\clearpage
+		
+		\section{Question 4}
+		
+		Suppose that you have a graph where the weights are integers between $0$ and $C$
+		for some constant $C$. Show how to implement Dijkstra's algorithm in
+		$O(n+m)$ time.
+		
+		\textbf{Answer}
+		
+		Since all edge weights are integers in $\{0,1,\dots,C\}$ with $C=O(1)$, we can
+		implement Dijkstra using a bucketed priority queue (Dial's algorithm).
+		
+		Maintain an array of buckets $B[0],B[1],\dots,B[Cn]$, where bucket $B[d]$ stores
+		all vertices whose current tentative distance is $d$.
+		Initialize $d[s]=0$, $d[v]=\infty$ for $v\neq s$, and insert $s$ into $B[0]$.
+		Keep a pointer $p$ to the smallest index such that $B[p]$ is nonempty.
+		
+		Repeatedly extract a vertex $u$ from $B[p]$ (advance $p$ forward until a nonempty
+		bucket is found). For each outgoing edge $(u,v)$ with weight $w(u,v)\in[0,C]$,
+		perform the relaxation
+		\[
+		\text{if } d[v] > d[u] + w(u,v)\text{ then set } d[v]\leftarrow d[u]+w(u,v)
+		\text{ and move $v$ to bucket } B[d[v]].
+		\]
+		Each vertex moves buckets only when its distance decreases, and each edge is
+		relaxed once when its tail is extracted. The pointer $p$ increases from $0$ to at
+		most $Cn$, so the total time spent scanning buckets is $O(Cn)=O(n)$, and the total
+		time spent on relaxations is $O(m)$.
+		
+		Therefore the overall running time is $O(n+m)$.
+		
+		
+		\clearpage
+		
+		\section{Question 5}
+		Give a graph $G$ with non-negative edge weights, give an algorithm to find the
+		second shortest path in the graph. Make the algorithm as efficient as you can.
+		
+		\textbf{Answer}
+		
+		\emph{Graph}
+		Let $V=\{s,a,b,t\}$ and let the (directed or undirected) edges with nonnegative
+		weights be
+		\[
+		(s,a):1,\quad (a,t):1,\quad (s,b):1,\quad (b,t):2,\quad (a,b):0.
+		\]
+		
+		We can plot it as below:
+		
+		\begin{tikzpicture}[>=stealth, node distance=2.8cm]
+			
+			% Nodes
+			\node[circle, draw, minimum size=8mm] (s) {$s$};
+			\node[circle, draw, minimum size=8mm, right of=s, above of=s] (a) {$a$};
+			\node[circle, draw, minimum size=8mm, right of=s, below of=s] (b) {$b$};
+			\node[circle, draw, minimum size=8mm, right of=a, below of=a] (t) {$t$};
+			
+			% Edges
+			\draw[->] (s) -- node[above left] {$1$} (a);
+			\draw[->] (a) -- node[above right] {$1$} (t);
+			
+			\draw[->] (s) -- node[below left] {$1$} (b);
+			\draw[->] (b) -- node[below right] {$2$} (t);
+			
+			\draw[->] (a) -- node[right] {$0$} (b);
+			
+		\end{tikzpicture}
+		
+		Then the shortest $s$--$t$ path is $s\to a\to t$ with length $2$, and the second
+		shortest is $s\to a\to b\to t$ with length $3$ (the path $s\to b\to t$ also has
+		length $3$).
+		
+		\bigskip
+		
+		\emph{Algorithm}
+		Maintain two best distances to each vertex:
+		\[
+		d_1[v]=\text{shortest distance from }s\text{ to }v,\qquad
+		d_2[v]=\text{second shortest distance from }s\text{ to }v,
+		\]
+		initialized by $d_1[s]=0$, $d_2[s]=\infty$, and $d_1[v]=d_2[v]=\infty$ for $v\neq s$.
+		Run a Dijkstra-like algorithm with a min-priority queue of pairs $(\ell,v)$:
+		
+		\begin{enumerate}
+			\item Insert $(0,s)$.
+			\item While the queue is nonempty, extract-min $(\ell,u)$; if $\ell>d_2[u]$, continue.
+			\item For each edge $(u,v)$ with weight $w(u,v)$, set $x=\ell+w(u,v)$ and update:
+			\begin{itemize}
+				\item If $x<d_1[v]$, set $d_2[v]\leftarrow d_1[v]$, $d_1[v]\leftarrow x$, and push $(d_1[v],v)$.
+				\item Else if $d_1[v]<x<d_2[v]$, set $d_2[v]\leftarrow x$ and push $(d_2[v],v)$.
+			\end{itemize}
+		\end{enumerate}
+		
+		At the end, $d_1[t]$ is the shortest-path length and $d_2[t]$ is the second
+		shortest-path length.
+		
+		\medskip
+		
+		\clearpage
+		
+		
+		
+		
+	\end{document}
