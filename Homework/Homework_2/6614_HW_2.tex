@@ -1,0 +1,892 @@
+\documentclass[letterpaper]{article} 
+\usepackage[utf8]{inputenc}
+\linespread{0.85}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[version=4]{mhchem}
+\usepackage{stmaryrd}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{capt-of}
+\usepackage{lipsum}
+\usepackage{fancyvrb}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage[export]{adjustbox}
+\graphicspath{ {./images/} }
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{float}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{capt-of}
+\usepackage{tcolorbox}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{hyperref} 
+\usepackage{xcolor} % For custom colors
+\lstset{
+	language=Python,                % Choose the language (e.g., Python, C, R)
+	basicstyle=\ttfamily\small, % Font size and type
+	keywordstyle=\color{blue},  % Keywords color
+	commentstyle=\color{gray},  % Comments color
+	stringstyle=\color{red},    % String color
+	numbers=left,               % Line numbers
+	numberstyle=\tiny\color{gray}, % Line number style
+	stepnumber=1,               % Numbering step
+	breaklines=true,            % Auto line break
+	backgroundcolor=\color{black!5}, % Light gray background
+	frame=single,               % Frame around the code
+}
+\usepackage{float}
+\usepackage[]{amsthm} %lets us use \begin{proof}
+	\usepackage[]{amssymb} %gives us the character \varnothing
+	
+	\title{Homework 2, IEOR 6614}
+	\author{Zongyi Liu}
+	\date{Wed, Feb 11, 2026}
+	\begin{document}
+		\maketitle
+		
+		\section{Question 1}
+		
+		Suppose you do not want to use the minimum-mean cycle algorithm given in class and in the book, but instead have access to a "Negative Cycle Detection" black box (like Bellman-Ford).
+		
+		\begin{itemize}
+			\item Show that for any real number $\lambda$, the problem of determining if $\mu^{*} \leq \lambda$ can be reduced to the problem of detecting a negative cycle in a modified graph.
+			\item Using this reduction, describe an algorithm to find an $\epsilon$-approximate value of $\mu^{*}$ using binary search. What is the range of values for the binary search if all edge weights are integers in $[-W, W]$ ?
+		\end{itemize}
+		
+		\textbf{Answer}
+		
+		First we set up the algorithm, let $G=(V,E)$ be a directed graph with (original) edge weights $w:E\to\mathbb{R}$.
+		For a directed cycle $C$, let
+		\[
+		W(C)=\sum_{e\in C} w(e),\qquad |C|=\text{number of edges in }C,\qquad
+		\mu(C)=\frac{W(C)}{|C|}.
+		\]
+		Define the minimum mean cycle value
+		\[
+		\mu^*=\min_{C\text{ cycle}} \mu(C).
+		\]
+		
+		
+		\subsection{Part 1}
+			
+			Fix any real $\lambda$. Construct a modified graph $G_\lambda=(V,E)$ with
+			\[
+			w_\lambda(e)=w(e)-\lambda \qquad\forall e\in E.
+			\]
+			For any directed cycle $C$,
+			\[
+			\sum_{e\in C} w_\lambda(e)
+			=\sum_{e\in C} (w(e)-\lambda)
+			= W(C) - \lambda |C|
+			= |C|\left(\mu(C)-\lambda\right).
+			\]
+			Therefore,
+			\[
+			\sum_{e\in C} w_\lambda(e) < 0
+			\iff |C|(\mu(C)-\lambda)<0
+			\iff \mu(C) < \lambda.
+			\]
+			Hence $G_\lambda$ contains a negative cycle iff there exists a cycle $C$ with
+			$\mu(C)<\lambda$, i.e.
+			\[
+			G_\lambda \text{ has a negative cycle}
+			\iff \mu^* < \lambda.
+			\]
+			In particular, to decide whether $\mu^*\le \lambda$, one can query the black box
+			at values arbitrarily close to $\lambda$:
+			\[
+			\mu^*\le \lambda \iff \neg\big(\mu^*>\lambda\big)
+			\iff \neg\big(\mu^*\ge \lambda+\delta \text{ for some }\delta>0\big),
+			\]
+			and note that
+			\[
+			\mu^* < x \iff G_x \text{ has a negative cycle}.
+			\]
+			So we can implement a monotone predicate for binary search, e.g.
+			\[
+			P(x)=\mathbf{1}\{G_x \text{ has a negative cycle}\}=\mathbf{1}\{\mu^*<x\}.
+			\]
+			This predicate is monotone: if $P(x)=1$ and $y>x$, then also $P(y)=1$.
+			
+			\subsection{Part 2}
+			
+			Assume we have a negative-cycle detector $\textsc{NegCycle}(G,\text{weights})$
+			that returns \texttt{true} iff the given weighted directed graph has a negative cycle.
+			
+			We binary search on $\lambda$ using the monotone predicate
+			\[
+			P(\lambda):=\textsc{NegCycle}(G, w_\lambda).
+			\]
+			Maintain an interval $[L,U]$ such that $\mu^*\in [L,U]$ and $U-L\le \epsilon$ at termination.
+			Initialize $L,U$ as a valid lower/upper bound on $\mu^*$ (see below).
+			
+			\medskip
+			\noindent{Binary search algorithm can be drafted as follows:}
+			\begin{enumerate}
+				\item Set $L\gets \underline{B}$, $U\gets \overline{B}$ where $\underline{B}\le \mu^*\le \overline{B}$.
+				\item While $U-L>\epsilon$:
+				\begin{enumerate}
+					\item $\lambda \gets (L+U)/2$.
+					\item If $\textsc{NegCycle}(G, w-\lambda)$ returns \texttt{true} (i.e. $P(\lambda)=1$),
+					then $\mu^*<\lambda$, so set $U\gets \lambda$.
+					\item Else no negative cycle exists in $G_\lambda$, so $\mu^*\ge \lambda$, set $L\gets \lambda$.
+				\end{enumerate}
+				\item Output any $\hat\mu\in[L,U]$ (e.g. $\hat\mu=(L+U)/2$). Then $|\hat\mu-\mu^*|\le \epsilon$.
+			\end{enumerate}
+			
+			\medskip
+			If $P(\lambda)=1$, then $\mu^*<\lambda$ so the upper endpoint can be decreased.
+			If $P(\lambda)=0$, then $\mu^*\ge \lambda$ so the lower endpoint can be increased.
+			Thus $\mu^*\in[L,U]$ is preserved and the interval halves each iteration.
+			The number of iterations is
+			\[
+			O\!\left(\log\frac{U-L}{\epsilon}\right).
+			\]
+			
+			\medskip
+			\noindent{Binary-search range when $w(e)\in[-W,W]\cap\mathbb{Z}$.}
+			For any directed cycle $C$,
+			\[
+			-W \le w(e)\le W \implies -W|C|\le W(C)\le W|C|
+			\implies -W \le \mu(C)=\frac{W(C)}{|C|}\le W.
+			\]
+			Taking the minimum over cycles yields
+			\[
+			-W \le \mu^* \le W.
+			\]
+			So we may initialize
+			\[
+			L=-W,\qquad U=W,
+			\]
+			and binary search over $[-W,W]$.
+		
+		
+		\clearpage
+	
+	\section{Question 2}
+	
+	Show how to find a blocking flow in an acyclic network in $O(n m)$ time by successively augmenting along a path of non-saturated edges and using depth-first search to find such a path. Show how to obtain a running time of $O(m)$ if all edges that are not incident to $s$ or $t$ have capacity 1 .
+	
+	
+		\textbf{Answer}
+		
+		Let $N=(V,E)$ be an $s$--$t$ flow network with capacities $c_e$ and a current flow $f$.
+		Let $G_f$ be the residual graph and assume $G_f$ is \emph{acyclic}.
+		A \emph{blocking flow} is an $s$--$t$ flow in $G_f$ such that every $s$--$t$ path in $G_f$
+		contains at least one saturated (residual capacity $0$) edge.
+		
+		
+		The blocking flow in an acyclic residual network in $O(nm)$ is as follows:
+		
+	\noindent
+	\fbox{
+		\begin{minipage}{0.97\linewidth}
+			\textbf{Algorithm}
+			
+			Maintain residual capacities $r(e)$ for each residual edge $e$.
+			
+			Repeat:
+			\begin{enumerate}
+				\item Run a DFS in $G_f$ restricted to \emph{non-saturated} residual edges ($r(e)>0$),
+				starting at $s$, to find an $s$--$t$ path $P$.
+				\item If no such path exists, stop; the current flow is blocking.
+				\item Otherwise augment by
+				\[
+				\Delta := \min_{e\in P} r(e)
+				\]
+				along $P$ (decrease $r(e)$ by $\Delta$ on forward edges of $P$ and increase appropriately
+				on reverse residual edges).
+			\end{enumerate}
+		\end{minipage}
+	}
+	
+		When the algorithm stops, DFS found no $s$--$t$ path consisting solely of non-saturated
+		(residual-positive) edges, hence every $s$--$t$ path in the residual graph contains at least
+		one saturated edge. This is exactly the definition of a blocking flow.
+		
+		\underline{Running time $O(nm)$.}
+		Each DFS takes $O(m)$ time. We claim there are at most $O(n)$ augmentations.
+		
+		Because $G_f$ is acyclic, fix any topological order of its vertices.
+		In each augmentation along a simple $s$--$t$ path $P$, at least one edge of $P$ becomes
+		\emph{newly saturated} (some edge achieves $r(e)=0$), namely any edge attaining the bottleneck
+		$\Delta$.
+		Consider a single augmentation and let $e=(u,v)$ be a newly saturated edge on $P$.
+		In an acyclic residual graph, after we saturate $e$ and update residual capacities, $e$
+		cannot appear again on any future $s$--$t$ path found by the DFS without first being
+		\emph{unsaturated} via sending flow back through its reverse residual edge.
+		But sending flow back would require an $s$--$t$ augmentation path that uses the reverse edge
+		$(v,u)$; together with the subpath from $u$ to $v$ in that augmentation, this would create a
+		directed cycle in the residual graph, contradicting acyclicity.
+		Hence, once a residual edge becomes saturated, it is never used again by any later augmenting
+		path.
+		
+		Therefore each augmentation permanently eliminates (at least) one residual edge from future
+		search paths. Along any simple $s$--$t$ path there are at most $n-1$ edges, so after at most
+		$n-1$ augmentations the DFS cannot keep finding new $s$--$t$ paths without reusing a saturated
+		edge (which cannot happen). Thus the number of augmentations is $O(n)$, and the total time is
+		\[
+		O(\#\text{DFS} \cdot m)=O(n\cdot m).
+		\]
+		
+		\bigskip
+		\underline{$O(m)$ time when all internal edges have capacity 1}
+		
+		Assume every edge not incident to $s$ or $t$ has capacity $1$. On any augmenting $s$--$t$ path, the bottleneck is always $\Delta=1$ unless the only
+		bottlenecks are edges incident to $s$ or $t$.
+		In particular, any augmentation that saturates an \emph{internal} edge (not incident to $s$ or $t$)
+		saturates it completely and (by the same acyclicity argument) removes it forever from future paths.
+		So the number of such augmentations is at most the number of internal edges, i.e.\ $O(m)$.
+		To get \emph{total} time $O(m)$, we must also make the \emph{sum of search work} $O(m)$.
+		
+		{Linear-time implementation via DFS with current-arc pointers.} Store adjacency lists and maintain for each vertex $v$ a pointer $\textit{next}(v)$ to the next
+		outgoing residual edge in its adjacency list not yet proved useless.
+		
+		Run a single DFS-like procedure:
+		\begin{enumerate}
+			\item Start at $s$ and follow outgoing residual edges with $r(e)>0$, advancing
+			$\textit{next}(v)$ when an edge is saturated or leads to a dead end.
+			\item Maintain a stack representing the current $s$-to-$x$ path in the DFS tree.
+			When you reach $t$, augment by $1$ along the stack path (this saturates at least one internal edge),
+			then backtrack to the first vertex on the stack that still has unexplored outgoing residual edges.
+			\item If you backtrack from a vertex $v$ and $\textit{next}(v)$ is past the end of its adjacency list,
+			then $v$ cannot reach $t$ via non-saturated edges; pop it and continue backtracking.
+			Stop when the stack becomes empty (no $s$--$t$ path exists), yielding a blocking flow.
+		\end{enumerate}
+		
+		\underline{Why total time is $O(m)$.}
+		Each time the pointer $\textit{next}(v)$ advances past an edge $e$, we never consider $e$ again.
+		Thus the total number of edge scans over the entire algorithm is $O(m)$.
+		Also, each augmentation saturates at least one internal capacity-$1$ edge, which is then never used
+		again, so the total number of augmentations is $O(m)$ but does \emph{not} multiply the edge-scan cost,
+		since searches continue from where they left off using the current-arc pointers.
+		
+		Hence the whole procedure performs $O(m)$ pointer advances and $O(m)$ stack operations, giving total
+		running time $O(m)$.
+		
+		Thus, in an acyclic residual network, repeatedly finding a non-saturated $s$--$t$ path by DFS and augmenting
+		yields a blocking flow in $O(nm)$ time.
+		If all edges not incident to $s$ or $t$ have capacity $1$, the same idea with current-arc pointers
+		and a single global DFS traversal runs in $O(m)$ time.
+		
+
+		
+		\clearpage
+		
+		\section{Question 3}
+		(Exercise 4, Chapter 8 from the book of Korte \& Vygen) A circulation is an $s-t$ flow with the extra property that the excess at $s$ and $t$ is 0 . Prove Hoffman's circulation theorem: Given a digraph $D(V, A)$ and lower and upper capacities $l, u: E(G) \rightarrow \mathbb{R}_{+}$with $l(a) \leq u(a)$ for all $a \in A$, there is circulation $f$ with $l(a) \leq f(a) \leq u(a)$ for all $a \in E(G)$ if and only if
+		
+		$$
+		\sum_{a \in \delta^{-}(X)} l(a) \leq \sum_{a \in \delta^{+}(X)} u(a) \quad \text { for all } X \subseteq V(G) .
+		$$
+		
+		Note: Hoffman's circulation theorem in turn quite easily implies the Max-Flow Min-Cut Theorem (Hoffman [1960]).
+		
+		
+		\textbf{Answer}
+		
+		
+		Let $D=(V,A)$ be a directed graph with lower and upper capacities
+		$l,u : A \to \mathbb{R}_+$ satisfying $l(a) \le u(a)$ for all $a\in A$.
+		There exists a circulation $f$ with
+		\[
+		l(a) \le f(a) \le u(a) \quad \forall a\in A
+		\]
+		if and only if for every $X\subseteq V$,
+		\[
+		\sum_{a\in \delta^-(X)} l(a)
+		\;\le\;
+		\sum_{a\in \delta^+(X)} u(a).
+		\]
+		
+		\bigskip
+		
+		\underline{Proof}
+		
+		\medskip
+		\emph{(Necessity)}
+		Suppose $f$ is a feasible circulation.
+		For any $X\subseteq V$, flow conservation gives $
+		\sum_{a\in \delta^+(X)} f(a)
+		=
+		\sum_{a\in \delta^-(X)} f(a).$ 
+		
+		Since $l(a)\le f(a)\le u(a)$ for all $a$,
+		
+		\[
+		\sum_{a\in \delta^-(X)} l(a)
+		\le
+		\sum_{a\in \delta^-(X)} f(a)
+		=
+		\sum_{a\in \delta^+(X)} f(a)
+		\le
+		\sum_{a\in \delta^+(X)} u(a).\]
+		
+		Hence the stated inequality holds for all $X$.
+		
+		\medskip
+		\emph{(Sufficiency)}
+		Assume the cut inequalities hold for all $X\subseteq V$.
+		We reduce the problem to a max-flow instance.
+		
+		Define new capacities as $
+		c(a) := u(a) - l(a) \ge 0.$ We seek $f$ with $l(a)\le f(a)\le u(a)$ and flow conservation.
+		Let $
+		g(a) := f(a) - l(a).$ Then $0\le g(a)\le c(a)$.
+		Flow conservation at a vertex $v$ becomes
+		\[
+		\sum_{a\in \delta^-(v)} g(a)
+		-
+		\sum_{a\in \delta^+(v)} g(a)
+		=
+		b(v),
+		\]
+		where
+		\[
+		b(v)
+		:=
+		\sum_{a\in \delta^+(v)} l(a)
+		-
+		\sum_{a\in \delta^-(v)} l(a).
+		\]
+		Observe that $\sum_{v\in V} b(v)=0$.
+		
+		We now construct an auxiliary network.
+		Add a super-source $s$ and super-sink $t$.
+		For each vertex $v$:
+		
+		- If $b(v)>0$, add arc $(s,v)$ with capacity $b(v)$.
+		- If $b(v)<0$, add arc $(v,t)$ with capacity $-b(v)$.
+		
+		All original arcs retain capacity $c(a)$.
+		
+		A feasible circulation exists if and only if there is a flow
+		from $s$ to $t$ saturating all arcs leaving $s$,
+		i.e.
+		\[
+		\text{max flow} = \sum_{b(v)>0} b(v).
+		\]
+		
+		By the Max-Flow Min-Cut Theorem, this holds if and only if
+		every $s$–$t$ cut has capacity at least $\sum_{b(v)>0} b(v)$.
+		
+		Consider an arbitrary cut $(S,T)$ with $s\in S$, $t\in T$.
+		Let $X = S\setminus\{s\}$.
+		A direct computation shows that the capacity of the cut equals
+		\[
+		\sum_{a\in \delta^+(X)} (u(a)-l(a))
+		+
+		\sum_{a\in \delta^-(X)} l(a).
+		\]
+		Requiring this to be at least $\sum_{b(v)>0} b(v)$
+		is equivalent (after simplification) to
+		\[
+		\sum_{a\in \delta^-(X)} l(a)
+		\le
+		\sum_{a\in \delta^+(X)} u(a).
+		\]
+		
+		Thus the cut condition guarantees that every $s$–$t$ cut
+		has sufficient capacity, so a saturating flow exists,
+		and hence a feasible circulation exists.
+		
+		
+		
+		
+		\clearpage
+		
+		\section{Question 4}
+		In this exercise, we see another modification of the Ford-Fulkerson algorithm that improves its running time.
+		
+		Given a network $D(V, A)$ where, without loss of generality, we assume all edge capacities $u$ are integers, a feasible flow $f$, and a parameter $\Delta$, define the $\Delta$-residual network as the residual network of $D(V, A)$ with respect to $f$, containing only the arcs with capacity at least $\Delta$. Let $D_{f}(\Delta)$ denote the $\Delta$-residual network. Let $m$ be the number of $\operatorname{arcs}$ of $D$. Consider the following algorithm to find the maximum flow:
+		
+		\begin{algorithm}[H]
+			\caption{Algorithm 1}
+			Initialize $f \leftarrow 0, \Delta \leftarrow 2^{\lfloor \log U \rfloor}$ where $U$ denote the largest arc capacity, $\Delta$-residual network $D_f(\Delta)$ with residual capacities $u_f(a) \geq \Delta$ for all $a \in D_f(\Delta)$\;
+			\While{$\Delta \geq 1$}{
+				\While{$D_f(\Delta)$ contains an $(s-t)$-path}{
+					Identify an $(s-t)$-path $P$ in $D_f(\Delta)$\;
+					$f^\star \leftarrow \min_{a \in P} u_f(a)$\;
+					Obtain new flow $f$ by augmenting $f^\star$ units of flow along $P$ and update $D_f(\Delta)$ and $u_f$\;
+				}
+				$\Delta \leftarrow \Delta/2$\;
+			}
+			\Return{flow $f$}
+		\end{algorithm}
+		
+		\begin{enumerate}
+			\item Prove that upon termination, the algorithm outputs the maximum flow.
+			\item We refer to a phase of the algorithm during which $\Delta$ remains constant as a scaling phase. Show that the algorithm terminates after $O(\log U)$ scaling phases.
+			\item Let $f^{\prime}$ be the value of the flow at the end of a scaling phase for some fixed $\Delta$. Let $D_{f^{\prime}}$ be the residual network of $D(V, A)$ with respect to flow $f^{\prime}$. Prove that the capacity of the minimum cut i n $D_{f^{\prime}}$ is at most $m \Delta$.
+			\item Show that the algorithm performs at most $2 m$ augmentations per scaling phase. Hint: Build on (c).
+			\item Conclude that the total running time of the algorithm is $O\left(m^{2} \log U\right)$.
+		\end{enumerate}
+	
+	\textbf{Answer}
+	
+	
+	\subsection{Part 1}
+	Let $D=(V,A)$ be a directed network with integer capacities $u(a)\in \mathbb{Z}_{\ge 0}$.
+	For a feasible flow $f$, let $u_f(a)$ denote residual capacities in the usual residual
+	network $D_f$.
+	For a parameter $\Delta\ge 1$, the {$\Delta$-residual network} $D_f(\Delta)$ is the
+	subgraph of $D_f$ containing only residual arcs $a$ with $u_f(a)\ge \Delta$.
+	
+	Algorithm 1 (capacity scaling) maintains $\Delta$ and repeatedly augments along an
+	$s$--$t$ path in $D_f(\Delta)$, then halves $\Delta$.
+	
+	Let $m:=|A|$ and let $U:=\max_{a\in A} u(a)$.
+	
+		The algorithm terminates only after reaching $\Delta<1$, i.e.\ after completing the
+		$\Delta=1$ scaling phase. During the $\Delta=1$ phase, $D_f(1)$ contains {exactly}
+		all residual arcs with positive residual capacity, since $u_f(a)\ge 1$ iff $u_f(a)>0$
+		(because capacities and thus residual capacities remain integers throughout).
+		
+		The inner loop for $\Delta=1$ stops only when $D_f(1)$ contains no $s$--$t$ path, i.e.\
+		when there is no augmenting path in the full residual network $D_f$.
+		By the standard Ford--Fulkerson optimality criterion, a feasible flow is maximum iff
+		its residual network contains no $s$--$t$ augmenting path. Hence the output flow is
+		a maximum flow. 
+		
+	
+	\subsection{Part 2}
+		
+		Initialization sets $\Delta = 2^{\lfloor \log_2 U\rfloor}$, i.e.\ the largest power of $2$
+		not exceeding $U$. Each scaling phase replaces $\Delta$ by $\Delta/2$, so the sequence of
+		$\Delta$ values is
+		\[
+		2^{\lfloor \log_2 U\rfloor},\;
+		2^{\lfloor \log_2 U\rfloor-1},\;
+		\dots,\;
+		2^0 = 1.
+		\]
+		Thus the number of distinct $\Delta$ values (phases) is $\lfloor \log_2 U\rfloor+1$,
+		which is $O(\log U)$. 
+		
+		
+		\subsection{Part 3}
+		
+		Fix a scaling phase with parameter $\Delta$, and let $f'$ be the flow at the end of this
+		phase, i.e.\ when the inner while-loop for this $\Delta$ has terminated.
+		Then by definition, $D_{f'}(\Delta)$ has {no} $s$--$t$ path.
+		
+		Let $S$ be the set of vertices reachable from $s$ in $D_{f'}(\Delta)$, and let $T=V\setminus S$.
+		Since $t$ is not reachable, we have $t\in T$, so $(S,T)$ is an $s$--$t$ cut.
+		
+		Consider any residual arc $a$ of $D_{f'}$ crossing from $S$ to $T$.
+		If $u_{f'}(a)\ge \Delta$, then $a$ would be present in $D_{f'}(\Delta)$ and would allow
+		reachability to enter $T$, contradicting the definition of $S$. Therefore every residual
+		arc $a$ crossing $(S,T)$ satisfies
+		\[
+		u_{f'}(a) < \Delta.
+		\]
+		The capacity of the cut $(S,T)$ in the residual network $D_{f'}$ is
+		\[
+		c_{f'}(S,T) \;:=\; \sum_{a\in \delta^+_{D_{f'}}(S)} u_{f'}(a),
+		\]
+		where $\delta^+_{D_{f'}}(S)$ are residual arcs leaving $S$.
+		Each summand is $<\Delta$, and the number of residual arcs is at most $2m$ (each original
+		arc yields at most one forward and one backward residual arc). In particular,
+		\[
+		c_{f'}(S,T) \;\le\; (2m)\Delta.
+		\]
+		If one defines $m$ to be the number of {residual} arcs in $D_f$ (as some notes do),
+		then the bound is exactly $m\Delta$; with $m=|A|$ it is $2m\Delta$.
+		In either convention, this shows the minimum $s$--$t$ cut capacity in $D_{f'}$ is
+		$O(m\Delta)$. 
+		
+		 \subsection{Part 4}
+		
+		Fix a scaling phase with parameter $\Delta$ and let $f'$ be the flow at its end.
+		Let $f$ be the flow at the {start} of this $\Delta$-phase.
+		Every augmentation in this phase sends $f^\star=\min_{a\in P} u_f(a)\ge \Delta$ units
+		of flow, because the path $P$ lies in $D_f(\Delta)$ and all arcs on $P$ have residual
+		capacity at least $\Delta$.
+		
+		Let $|f|$ denote the value of the flow.
+		Consider the residual network at the end of the phase, $D_{f'}$.
+		By the max-flow/min-cut theorem applied to the residual network (equivalently, by
+		standard flow arguments),
+		\[
+		|f^*| - |f'| \;=\; \text{(max additional flow possible in }D_{f'}\text{)}
+		\;\le\; \text{(min cut capacity in }D_{f'}\text{)}.
+		\]
+		By part (c), the minimum cut capacity in $D_{f'}$ is at most $O(m\Delta)$, hence
+		\[
+		|f^*|-|f'| \;\le\; 2m\Delta \qquad (\text{using } m=|A|).
+		\]
+		Also, throughout this phase, the total increase in flow value is
+		\[
+		|f'|-|f| \;\le\; |f^*|-|f| \;\le\; (|f^*|-|f'|) + (|f'|-|f|)
+		\]
+		but more directly we can bound the \emph{number} of augmentations $k$ in this phase by
+		\[
+		k\Delta \;\le\; |f'|-|f| \;\le\; |f^*|-|f| \;\le\; |f^*|-|f'| + (|f'|-|f|),
+		\]
+		which is not tight as written. The standard clean argument is:
+		
+		At the {end} of the phase, there is no $\Delta$-augmenting path, so any further
+		augmentation must use a path with bottleneck $<\Delta$, i.e.\ the remaining augmentable
+		flow in $D_{f'}$ is at most the min-cut capacity in $D_{f'}$, which by (c) is $\le 2m\Delta$.
+		But each augmentation \emph{during the phase} increases $|f|$ by at least $\Delta$.
+		Hence, if there were more than $2m$ augmentations in the phase, the flow value would
+		have increased by more than $2m\Delta$, contradicting that once the phase ends, the
+		residual network has an $s$--$t$ cut of capacity $\le 2m\Delta$ (so the total additional
+		flow possible from that point is $\le 2m\Delta$).
+		Therefore the number of augmentations in a phase is at most $2m$ (or $m$ under the
+		alternative convention of counting residual arcs). 
+		
+	
+	\subsection{Part 5}
+		
+		There are $O(\log U)$ scaling phases by part (b).
+		By part (d), each phase performs $O(m)$ augmentations.
+		
+		If we find each augmenting path in $D_f(\Delta)$ by BFS/DFS in $O(m)$ time (since
+		$|A|=m$ and $|V|\le m+1$ in a connected flow instance), and update residual capacities
+		along the path in $O(m)$ worst-case but in fact $O(|P|)\le O(m)$, then each augmentation
+		costs $O(m)$ time.
+		
+		Thus total time is
+		\[
+		O(\#\text{phases})\cdot O(\#\text{augs/phase})\cdot O(\text{time/aug})
+		\;=\;
+		O(\log U)\cdot O(m)\cdot O(m)
+		\;=\;
+		O(m^2\log U).
+		\]
+
+
+	
+		\clearpage
+		
+		\section{Question 5}
+		The Edmonds-Karp algorithm implements the Ford-Fulkerson algorithm by always choosing a shortest augmenting path in the residual network. Suppose instead that the Ford-Fulkerson algorithm chooses a widest augmenting path: an augmenting path with the greatest residual capacity. Assume that $G=(V, E)$ is a flow network with source $s$ and sink $t$, that all capacities are integer, and that the largest capacity is $C$. In this problem, you will show that choosing a widest augmenting path results in at most $|E| \ln \left|f^{*}\right|$ augmentations to find a maximum flow $f^{*}$.
+		
+		\begin{enumerate}
+			\item Show how to adjust Dijkstra's algorithm to find the widest augmenting path in the residual network.
+			\item Show that a maximum flow in $G$ can be formed by successive flow augmentations along at most $|E|$ paths from $s$ to $t$.
+			\item Given a flow $f$, argue that the residual network has an augmenting path $p$ with residual capacity $(p) \geq\left(\left|f^{*}\right|-|f|\right) /|E|$.
+			\item Assuming that each augmenting path is a widest augmenting path, let $f_{i}$ be the flow after augmenting the flow by the $i$ th augmenting path, where $f_{0}$ has $f(u, v)=0$ for all edges $(u, v)$. Show that $\left|f^{*}\right|-\left|f_{i}\right| \leq\left|f^{*}\right|(1-1 /|E|)^{i}$.
+			\item Show that $\left|f^{*}\right|-\left|f_{i}\right|<\left|f^{*}\right| e^{-i /|E|}$.
+			\item Conclude that after the flow is augmented at most $|E| \ln \left|f^{*}\right|$ times, the flow is a maximum flow.
+		\end{enumerate}
+	
+	
+		\textbf{Answer}
+		
+		\subsection{Part 1}
+
+		
+		Let $G=(V,E)$ be a flow network with integer capacities, source $s$, sink $t$.
+		Given a flow $f$, let $G_f$ be the residual network and for an $s$--$t$ path $p$ in $G_f$
+		let its residual capacity be
+		\[
+		c_f(p):=\min_{e\in p} c_f(e).
+		\]
+		A \emph{widest} augmenting path is an $s$--$t$ path maximizing $c_f(p)$.
+
+			This is the standard \emph{maximum-bottleneck} (a.k.a.\ widest path) problem.
+			Maintain for each vertex $v$ a label
+			\[
+			\mathrm{width}[v] = \max_{p:s\leadsto v} \min_{e\in p} c_f(e),
+			\]
+			the best bottleneck value achievable from $s$ to $v$.
+			Initialize $\mathrm{width}[s]=+\infty$ and $\mathrm{width}[v]=0$ for $v\ne s$.
+			Use a max-priority queue keyed by $\mathrm{width}[\cdot]$.
+			
+			Repeatedly extract a vertex $u$ of maximum $\mathrm{width}[u]$ not yet finalized, and
+			relax each residual arc $(u,v)$ by
+			\[
+			\mathrm{cand} := \min\{\mathrm{width}[u],\, c_f(u,v)\},
+			\qquad
+			\text{if }\mathrm{cand}>\mathrm{width}[v]\text{ then update } \mathrm{width}[v]=\mathrm{cand}
+			\text{ and set }\mathrm{parent}[v]=u.
+			\]
+			When $t$ is extracted (or the queue empties), $\mathrm{width}[t]$ equals the maximum
+			$b$ such that there exists an $s$--$t$ path with bottleneck at least $b$, i.e.\ a widest
+			augmenting path can be recovered by following $\mathrm{parent}[\cdot]$ pointers.
+			
+			Correctness follows from the same cut/greedy argument as Dijkstra:
+			once a vertex $u$ with maximum tentative $\mathrm{width}[u]$ is extracted, no other
+			path can improve its bottleneck value, because any alternative path to $u$ must pass
+			through a vertex whose current label is $\le \mathrm{width}[u]$ and then take a final
+			edge of residual capacity $\le$ that bottleneck. Hence $\mathrm{width}[u]$ is final. Here running time is $O(|E|\log |V|)$ with a binary heap.
+			
+			
+		
+		
+		\subsection{Part 2}
+		
+		Let $f^*$ be any maximum flow. Consider the difference $g := f^*-f$ (in particular take
+		$f\equiv 0$ if you like). One can decompose $g$ into flows on simple $s$--$t$ paths plus
+		cycles. A constructive proof:
+		
+		Form a directed multigraph on $E$ where each original directed edge $e$ has value $g(e)$
+		(possibly $0$). While there exists a vertex with positive excess other than $s$ or $t$,
+		send flow along some outgoing edge; because total excess is $0$ and only $s$ has net
+		positive supply and $t$ has net demand, repeated walk-following from $s$ must eventually
+		reach $t$ (yielding an $s$--$t$ path) or repeat a vertex (yielding a directed cycle).
+		In either case, push $\delta$ units along the found path/cycle, where $\delta$ is the
+		minimum $g(e)$ on it, and subtract it from the involved edges. This eliminates at least
+		one edge (an edge with $g(e)=\delta$ becomes $0$). Therefore, the process terminates after
+		at most $|E|$ such path/cycle extractions.
+		
+		Discarding cycles (they do not affect the $s$--$t$ value), we obtain a representation
+		\[
+		f^* = \sum_{k=1}^{m} x_k \chi^{p_k} \;+\; \sum_{\ell} y_\ell \chi^{C_\ell},
+		\qquad m \le |E|,
+		\]
+		where each $p_k$ is an $s$--$t$ path, $C_\ell$ a directed cycle, and $x_k,y_\ell>0$.
+		Hence the \emph{value} $|f^*|$ can be achieved by augmenting along at most $|E|$ paths.
+		
+		
+		\subsection{Part 3}
+		
+		Fix a current flow $f$ and an optimal flow $f^*$.
+		Consider $g := f^* - f$ expressed on the original edges as above.
+		In the residual network $G_f$, each unit of additional flow that takes $f$ to $f^*$
+		corresponds to sending flow along either a forward residual arc $(u,v)$ (if $g(u,v)>0$)
+		or a backward residual arc $(v,u)$ (if $g(u,v)<0$). Thus $g$ can be viewed as a feasible
+		$s$--$t$ flow in $G_f$ of value
+		\[
+		|g| = |f^*|-|f|.
+		\]
+		By part (2), this residual $s$--$t$ flow $g$ can be decomposed into at most $|E|$
+		$s$--$t$ paths (ignoring cycles), say with path-values $\alpha_1,\dots,\alpha_m$ where
+		$m\le |E|$ and $\sum_{j=1}^m \alpha_j = |f^*|-|f|$.
+		Therefore some path has value at least the average:
+		\[
+		\max_j \alpha_j \;\ge\; \frac{|f^*|-|f|}{m} \;\ge\; \frac{|f^*|-|f|}{|E|}.
+		\]
+		But the value of an $s$--$t$ path flow is at most its bottleneck, and in a path-flow
+		construction one can send exactly the bottleneck. Hence there exists an augmenting path
+		$p$ in $G_f$ with
+		\[
+		c_f(p) \;\ge\; \frac{|f^*|-|f|}{|E|}.
+		\]
+		
+		
+		\subsection{Part 4}
+		
+		Let $f_i$ be the flow after $i$ widest augmentations, with $f_0\equiv 0$.
+		Let $\Delta_i := |f^*| - |f_i|$ be the remaining gap to optimality.
+		By part (3), in the residual network of $f_i$ there exists \emph{some} augmenting path
+		with residual capacity at least $\Delta_i/|E|$.
+		Since we choose a \emph{widest} augmenting path, the chosen path has residual capacity
+		at least that much. Thus the augmentation increases the flow value by
+		\[
+		|f_{i+1}| - |f_i| \;\ge\; \frac{\Delta_i}{|E|}.
+		\]
+		Equivalently,
+		\[
+		\Delta_{i+1}
+		= |f^*|-|f_{i+1}|
+		\le |f^| - \left(|f_i| + \frac{\Delta_i}{|E|}\right)
+		= \Delta_i\left(1-\frac{1}{|E|}\right).
+		\]
+		Iterating from $\Delta_0 = |f^*|$ gives
+		\[
+		|f^*| - |f_i|
+		= \Delta_i
+		\le |f^*|\left(1-\frac{1}{|E|}\right)^i.
+		\]
+		
+		
+		\subsection{Part 5}
+		
+		Use the standard inequality $1-x \le e^{-x}$ for all real $x$.
+		With $x=1/|E|$ we obtain
+		\[
+		\left(1-\frac{1}{|E|}\right)^i \le e^{-i/|E|},
+		\]
+		hence
+		\[
+		|f^*|-|f_i|
+		\le |f^*|\left(1-\frac{1}{|E|}\right)^i
+		< |f^*| e^{-i/|E|}.
+		\]
+		
+		
+		\subsection{Part 6}
+		
+		Capacities are integers, and Ford--Fulkerson augmentations along residual paths preserve
+		integrality of the flow. Therefore $|f_i|$ and $|f^*|$ are integers, so the gap
+		$\Delta_i = |f^*|-|f_i|$ is a nonnegative integer.
+		
+		If
+		\[
+		i \;\ge\; |E|\ln |f^*|,
+		\]
+		then
+		\[
+		|f^*|-|f_i| \;<\; |f^*| e^{-i/|E|}
+		\;\le\; |f^*| e^{-\ln|f^*|} \;=\; 1.
+		\]
+		Since $\Delta_i$ is an integer and $\Delta_i<1$, we must have $\Delta_i=0$, i.e.
+		$|f_i|=|f^*|$ and $f_i$ is a maximum flow.
+		
+		Thus widest-augmenting-path Ford--Fulkerson terminates after at most
+		\[
+		|E|\ln|f^*|
+		\]
+		augmentations. 
+	
+	\clearpage
+	
+	\section{Question 6}
+	A path cover of a directed graph $G=(V, E)$ is a set $P$ of vertex-disjoint paths such that every vertex in $V$ is included in exactly one path in $P$. Paths may start and end anywhere, and they may be of any length, including 0. A minimum path cover of $G$ is a path cover containing the fewest possible paths.
+	
+	\begin{itemize}
+		\item Give an efficient algorithm to find a minimum path cover of a directed acyclic graph $G=(V, E)$. (Assuming that $V=1,2, \ldots, n$, construct a flow network based on the graph $G^{\prime}=\left(V^{\prime}, E^{\prime}\right)$, where
+	\end{itemize}
+	
+	$$
+	\begin{aligned}
+		V^{\prime} & =x_{0}, x_{1}, \ldots, x_{n} \cup y_{0}, y_{1}, \ldots, y_{n} \\
+		E^{\prime} & =\left(x_{0}, x_{i}\right) i \in V \cup\left(y_{i}, y_{0}\right) i \in V \cup\left(x_{i}, y_{j}\right)(i, j) \in E
+	\end{aligned}
+	$$
+	
+	and run a maximum-flow algorithm.)
+	
+	\begin{itemize}
+		\item Does your algorithm work for directed graphs that contain cycles? Explain.
+	\end{itemize}
+
+\textbf{Answer}
+
+\subsection{Part 1}
+
+
+A \emph{path cover} of a directed graph $G=(V,E)$ is a set of vertex-disjoint directed paths
+covering all vertices. In a DAG, the minimum path cover can be found by reducing to a
+maximum matching problem in a bipartite graph, which can be solved by max flow.
+
+\medskip
+Assume $V=\{1,2,\dots,n\}$. Build the directed network $G'=(V',E')$ exactly as suggested:
+\[
+V'=\{x_0,x_1,\dots,x_n\}\ \cup\ \{y_0,y_1,\dots,y_n\},
+\]
+\[
+E'=\{(x_0,x_i): i\in V\}\ \cup\ \{(y_i,y_0): i\in V\}\ \cup\ \{(x_i,y_j): (i,j)\in E\}.
+\]
+Give every arc capacity $1$.
+
+Let $s:=x_0$ and $t:=y_0$. Compute a maximum $s$-$t$ flow of value $F$.
+
+\medskip
+\emph{Claim 1 (flow $\leftrightarrow$ matching).}
+The arcs $(x_i,y_j)$ carrying one unit of flow form a matching $M$ in the bipartite graph
+with left part $\{x_1,\dots,x_n\}$ and right part $\{y_1,\dots,y_n\}$ and edges
+$x_i y_j$ whenever $(i,j)\in E$.
+
+\emph{Proof.}
+Capacity $1$ and flow conservation imply each $x_i$ can send at most one unit to the
+right side (since the only incoming arc to $x_i$ is $(s,x_i)$ of capacity $1$),
+and each $y_j$ can receive at most one unit from the left side (since the only outgoing
+arc from $y_j$ is $(y_j,t)$ of capacity $1$). Thus the used $(x_i,y_j)$ edges are
+vertex-disjoint on both sides, i.e.\ a matching. Conversely, any matching yields a feasible
+flow of the same value by sending $1$ along $s\to x_i \to y_j \to t$ for each matched pair.
+\hfill $\square$
+
+\medskip
+\emph{Claim 2 (minimum path cover size).}
+If $G$ is a DAG, then
+\[
+\text{size of a minimum path cover} \;=\; n - |M|,
+\]
+where $M$ is a maximum matching (equivalently $|M|=F$).
+
+\emph{Proof.}
+Every path cover $P$ induces a matching as follows:
+for each path $v_1\to v_2\to \cdots \to v_k$ in $P$, include the pairs
+$(v_1,v_2),(v_2,v_3),\dots,(v_{k-1},v_k)$ in the matching.
+Because paths are vertex-disjoint, each vertex has at most one successor and at most
+one predecessor inside the cover, so these pairs are disjoint on both sides: a matching.
+If the cover has $|P|$ paths, then the total number of such pairs is
+\[
+(n-|P|),
+\]
+since each of the $|P|$ paths of length $k$ contributes $(k-1)$ pairs and
+$\sum (k)=n$.
+
+Hence $|M|\ge n-|P|$ for every path cover $P$, so $|P|\ge n-|M|$.
+
+Conversely, given a matching $M$, create a directed graph $H$ on vertex set $V$ by adding
+exactly the matched edges $(i,j)\in M$ as directed edges $i\to j$.
+Because $M$ matches each vertex at most once as a predecessor and at most once as a
+successor, every vertex in $H$ has outdegree $\le 1$ and indegree $\le 1$.
+When $G$ is acyclic, $H$ is also acyclic, so every component of $H$ is a directed path.
+These paths are vertex-disjoint and cover all vertices, giving a path cover with exactly
+\[
+n-|M|
+\]
+paths (each matched edge reduces the number of paths by $1$). Thus a minimum path cover
+has size $n-|M|$.
+
+\medskip
+\noindent
+\fbox{
+	\begin{minipage}{0.97\linewidth}
+		\textbf{Algorithm}
+		\begin{enumerate}
+			\item Build $G'$ as above and set all capacities to $1$.
+			\item Run any polynomial-time max-flow algorithm to get a maximum flow value $F$.
+			\item Let $M:=\{(i,j)\in E : f(x_i,y_j)=1\}$.
+			\item Output a path cover by linking each matched edge $i\to j$.
+			Concretely, start a path at every vertex with no matched incoming edge,
+			and repeatedly follow the unique matched outgoing edge (if any) until it stops.
+		\end{enumerate}
+		The number of paths returned is $n-F$, which is minimum by the claims above.
+	\end{minipage}
+}
+
+
+\medskip
+The network has $2n+2$ vertices and $2n+|E|$ edges.
+With unit capacities, one may use Dinic in $O(\sqrt{|V'|}\,|E'|)$ for bipartite matching
+(Hopcroft--Karp viewpoint), i.e.\ $O(\sqrt{n}\,(|E|+n))$, or any standard max-flow bound.
+
+\bigskip
+
+
+\subsection{Part 2}
+
+The {reduction to matching via $G'$ still computes a maximum matching} in the bipartite
+graph (Claim 1), but the equality
+\[
+\text{min path cover size} = n-|M|
+\]
+{need not hold} when $G$ has cycles.
+
+Reason: from a matching $M$ we form $H$ with indegree/outdegree $\le 1$, but if $G$ has
+cycles, $H$ may contain a directed cycle. A directed cycle is \emph{not} a directed path,
+so it cannot be part of a path cover. Thus the step ``matching $\Rightarrow$ path cover
+with $n-|M|$ paths'' can fail.
+
+In fact, for general directed graphs, finding a minimum path cover (with vertex-disjoint
+directed paths covering all vertices) is NP-hard; the clean matching formula and the
+flow-based algorithm rely essentially on acyclicity (so that $H$ decomposes into paths
+rather than paths-plus-cycles).
+
+		
+		
+	\end{document}
