@@ -1,0 +1,650 @@
+\documentclass[letterpaper]{article} 
+\usepackage[utf8]{inputenc}
+\linespread{0.85}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[version=4]{mhchem}
+\usepackage{stmaryrd}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{capt-of}
+\usepackage{lipsum}
+\usepackage{fancyvrb}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage[export]{adjustbox}
+\graphicspath{ {./images/} }
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{float}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{capt-of}
+\usepackage{tcolorbox}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{hyperref} 
+\usepackage{xcolor} % For custom colors
+\lstset{
+	language=Python,                % Choose the language (e.g., Python, C, R)
+	basicstyle=\ttfamily\small, % Font size and type
+	keywordstyle=\color{blue},  % Keywords color
+	commentstyle=\color{gray},  % Comments color
+	stringstyle=\color{red},    % String color
+	numbers=left,               % Line numbers
+	numberstyle=\tiny\color{gray}, % Line number style
+	stepnumber=1,               % Numbering step
+	breaklines=true,            % Auto line break
+	backgroundcolor=\color{black!5}, % Light gray background
+	frame=single,               % Frame around the code
+}
+\usepackage{float}
+\usepackage[]{amsthm} % use \begin{proof}
+\usepackage[]{amssymb} %gives us the character \varnothing
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+	\title{Homework 3, IEOR 6614}
+	\author{Zongyi Liu}
+	\date{Mon, Mar 2, 2026}
+	\begin{document}
+		\maketitle
+		
+		\section{Question 1}
+		
+		Suppose that at some point in the execution of a push-relabel algorithm, there exists an integer 
+		$0 < k \le n - 1$ for which no vertex has $d(v) = k$. Show that all vertices with $d(v) > k$ are 
+		on the source side of a minimum $s$--$t$ cut. If such a $k$ exists, the gap heuristic updates every 
+		vertex $v$ for which $d(v) > k$ to set
+		\[
+		d(v) = \max(d(v), n + 1).
+		\]
+		Show that $d$ is still a valid distance function. (The gap heuristic is crucial in making 
+		implementations of the push-relabel method perform well in practice.)
+		
+		\textbf{Answer}
+		
+		\textbf{Solution.}
+		
+		Let $A = \{v \in V : d(v) > k\}$.
+		
+		\textbf{Step 1: Vertices with $d(v) > k$ lie on the source side of a minimum cut.}
+		
+		First note that $d(s) = n > k$ and $d(t) = 0 \le k$. Hence
+		$s \in A$ and $t \notin A$, so $A$ separates $s$ and $t$.
+		
+		Now consider any residual edge $(u,v)$ with $u \in A$. Since $d$ is a valid
+		distance labeling, for every residual edge $(u,v)$ we have
+		$d(u) \le d(v) + 1$. Thus
+		$d(v) \ge d(u) - 1.$
+		
+		Since $u \in A$, we have $d(u) > k$, hence $d(u) \ge k+1$, and therefore
+		$d(v) \ge k.$
+		
+		By assumption no vertex has label $k$. Hence $d(v) \ne k$ and therefore
+		$d(v) > k$. Thus $v \in A$.
+		
+		Therefore no residual edge goes from $A$ to $V \setminus A$. Hence the cut
+		$(A, V \setminus A)$ has residual capacity $0$. Since cut capacities are
+		nonnegative, this cut is a minimum $s$--$t$ cut in the residual network.
+		Thus every vertex with $d(v) > k$ lies on the source side of a minimum
+		$s$--$t$ cut.
+		
+		\medskip
+		
+		\textbf{Step 2: The gap heuristic preserves validity of the distance labels.}
+		
+		The gap heuristic updates the labels as
+		$
+		d'(v) =
+		\begin{cases}
+			\max(d(v), n+1), & \text{if } d(v) > k, \\
+			d(v), & \text{otherwise}.
+		\end{cases}
+		$
+		
+		We show that $d'$ remains a valid distance function. A valid labeling must
+		satisfy for every residual edge $(u,v)$:
+		$d'(u) \le d'(v) + 1.$
+		
+		We consider cases.
+		
+		\medskip
+		
+		\textit{Case 1: $u \notin A$.}
+		
+		Then $d'(u) = d(u)$ and $d'(v) \ge d(v)$. Since $d$ was valid,
+		$d(u) \le d(v) + 1 \le d'(v) + 1.$
+		Thus $d'(u) \le d'(v) + 1$.
+		
+		\medskip
+		
+		\textit{Case 2: $u \in A$.}
+		
+		From Step 1, if $(u,v)$ is residual and $u \in A$, then $v \in A$ as well.
+		Thus both endpoints lie in $A$.
+		
+		Now $d'(u) = \max(d(u), n+1)$ and $d'(v) = \max(d(v), n+1)$.
+		
+		If $d'(u) = n+1$, then
+		$d'(u) = n+1 \le d'(v) + 1.$
+		
+		If $d'(u) = d(u)$, then using validity of $d$,
+		$d'(u) = d(u) \le d(v) + 1 \le d'(v) + 1.$
+		
+		Thus the inequality holds in all cases.
+		
+		\medskip
+		
+		Therefore $d'$ satisfies the distance labeling condition and remains a
+		valid distance function.
+		
+		\medskip
+		
+		\textbf{Conclusion.}  
+		If there exists a gap at label $k$, then all vertices with $d(v) > k$ lie
+		on the source side of a minimum $s$--$t$ cut. Updating their labels to
+		$\max(d(v), n+1)$ preserves the validity of the distance function, which
+		justifies the correctness of the gap heuristic.
+		
+		\clearpage
+	
+	\section{Question 2}
+	
+	In class, we talked about efficient push-relabel algorithms using the following
+	procedure for processing vertices. In this procedure $c_f$ is residual capacity
+	and the neighbors of a vertex are stored in a linked list which has
+	{current}, {head} and {next-neighbor} functions.
+	
+	\medskip
+
+	
+	\begin{algorithm}[h]
+		\caption{\textsc{Discharge}$(u)$}
+		\begin{algorithmic}[1]
+			\While{$e(u) > 0$}
+			\State $v \gets u.\mathit{current}$
+			\If{$v = \mathrm{NIL}$}
+			\State \textsc{Relabel}$(u)$
+			\State $u.\mathit{current} \gets u.\mathit{head}$
+			\ElsIf{$c_f(u,v) > 0$ \textbf{and} $d(u) = d(v) + 1$}
+			\State \textsc{Push}$(u,v)$
+			\Else
+			\State $u.\mathit{current} \gets v.\mathit{next\mbox{-}neighbor}$
+			\EndIf
+			\EndWhile
+		\end{algorithmic}
+	\end{algorithm}
+	
+	\medskip
+	
+	Suppose that we run a push-relabel algorithm, but when it comes time to choose
+	an operation, we always run discharge on the active vertex with the highest
+	distance label. Show that this algorithm runs in $O(n^3)$ time.
+	
+	\medskip
+	
+	\emph{Hint:} Follow the analysis of the generic algorithm, but introduce a
+	different potential function to help bound the number of non-saturating pushes.
+	
+		\textbf{Answer}
+		
+		\textbf{Solution.}
+		
+		We analyze the running time of the push--relabel algorithm that always
+		selects the active vertex with the highest distance label and performs
+		\textsc{Discharge} on it.
+		
+		\medskip
+		
+		First recall several known properties of the push--relabel algorithm.
+		
+		\begin{itemize}
+			\item The label of every vertex is at most $2n-1$.
+			\item Each relabel operation strictly increases $d(v)$.
+			\item Therefore each vertex can be relabeled at most $2n$ times.
+		\end{itemize}
+		
+		Since there are $n$ vertices, the total number of relabel operations is
+		$O(n^2).$
+		
+		\medskip
+		
+		Next consider push operations. There are two types of pushes.
+		
+		\medskip
+		
+		\textit{Saturating pushes.}
+		
+		A push along $(u,v)$ is saturating if it makes the residual capacity
+		$c_f(u,v)$ equal to zero. Each saturating push eliminates one residual
+		edge. Since each edge can only become saturated a limited number of
+		times between relabel operations, the total number of saturating pushes
+		is
+		$O(n^2).$
+		
+		\medskip
+		
+		\textit{Non-saturating pushes.}
+		
+		To bound the number of non-saturating pushes, define a potential function
+		$
+		\Phi = \sum_{v \text{ active}} d(v).
+		$
+		
+		Since the algorithm always selects the active vertex with the highest
+		label, a non-saturating push from $u$ to $v$ makes $u$ inactive and
+		possibly activates $v$. Because admissible edges satisfy
+		$d(u) = d(v) + 1,$
+		the potential strictly decreases.
+		
+		Each relabel operation increases $\Phi$ by at most $n$, and since the
+		total number of relabels is $O(n^2)$, the total increase of $\Phi$ is
+		$O(n^3).$
+		
+		Because every non-saturating push decreases $\Phi$ by at least $1$, the
+		total number of non-saturating pushes is also
+		$O(n^3).$
+		
+		\medskip
+		
+		Finally, each execution of \textsc{Discharge} performs only constant work
+		between pushes or relabels, so the total running time of the algorithm
+		is bounded by the number of these operations.
+		
+		\medskip
+		
+		\textbf{Conclusion.}
+		
+		The total number of relabels is $O(n^2)$ and the total number of pushes
+		is $O(n^3)$. Therefore the running time of the algorithm is
+		$O(n^3).$
+
+		
+		\clearpage
+		
+		\section{Question 3}
+		\begin{enumerate}
+			\item[(a)] Give an algorithm with running time $O(n^2)$ which returns an order
+			$v_1, v_2, \ldots, v_n$ of the vertices such that for all $i = 2,3,\ldots,n$,
+			\[
+			v_i
+			=
+			\arg\max_{w \in \{v_i,v_{i+1},\ldots,v_n\}}
+			\sum_{\substack{vw \in E:\\ v \in \{v_1,\ldots,v_{i-1}\}}} u(vw).
+			\]
+			(More efficient algorithms that run in time $O(m + n\log n)$ are known for this problem).
+			
+			\item[(b)] Fix the order we obtained from the previous step. Prove that the minimum
+			capacity of a cut separating $v_{n-1}$ and $v_n$ is
+			\[
+			\sum_{\substack{v v_n :\\ v \in \{v_1,\ldots,v_{n-1}\}}} u(vv_n).
+			\]
+			
+			\item[(c)] Use the previous facts to deduce an algorithm which finds the minimum cut
+			of $G$ in $O(n^3)$ time.
+		\end{enumerate}
+		
+		
+		\textbf{Answer}
+		
+		\textbf{Solution.}
+		
+		\item[(a)] We construct the order greedily. For each vertex $w$ not yet chosen, let
+		$
+		\alpha(w) = \sum_{\substack{vw \in E:\\ v \in \{v_1,\ldots,v_{i-1}\}}} u(vw),
+		$
+		that is, the total capacity from $w$ to the set of already chosen vertices.
+		
+		\medskip
+		
+		\textit{Algorithm.}
+		Choose $v_1$ arbitrarily. For $i=2,3,\ldots,n$, having already chosen
+		$v_1,\ldots,v_{i-1}$, select
+		$
+		v_i \in \arg\max_{w \in V \setminus \{v_1,\ldots,v_{i-1}\}} \alpha(w).
+		$
+		After selecting $v_i$, update the values $\alpha(w)$ for all unchosen neighbors
+		$w$ of $v_i$ by adding $u(v_iw)$.
+		
+		\medskip
+		
+		A simple implementation stores the set of chosen vertices and, for each unchosen
+		vertex, its current key $\alpha(w)$. At step $i$ we scan all unchosen vertices to
+		find the maximum, which takes $O(n)$ time, and then update all keys in $O(n)$ time.
+		Thus each step costs $O(n)$, and over $n$ steps the total running time is $O(n^2).$
+		
+		By construction, for every $i=2,\ldots,n$,
+		$
+		v_i
+		=
+		\arg\max_{w \in \{v_i,v_{i+1},\ldots,v_n\}}
+		\sum_{\substack{vw \in E:\\ v \in \{v_1,\ldots,v_{i-1}\}}} u(vw).
+		$
+		
+		\medskip
+		
+		\item[(b)] Let
+		$
+		A_i = \{v_1,\ldots,v_i\}.
+		$
+		We must show that the minimum capacity of a cut separating $v_{n-1}$ and $v_n$ is
+		$
+		\sum_{\substack{v v_n \in E:\\ v \in \{v_1,\ldots,v_{n-1}\}}} u(vv_n).
+		$
+		
+		Let $(S,\overline S)$ be any cut with $v_n \in S$ and $v_{n-1} \in \overline S$.
+		Let $j$ be the smallest index such that $v_j \in S$. Then
+		$
+		v_1,\ldots,v_{j-1} \in \overline S.
+		$
+		Since $v_j$ was chosen by maximum adjacency, we have
+		$
+		\sum_{\substack{v v_j \in E:\\ v \in A_{j-1}}} u(vv_j)
+		\ge
+		\sum_{\substack{v v_n \in E:\\ v \in A_{j-1}}} u(vv_n).
+		$
+		Now the left-hand side counts only edges crossing the cut from $v_j$ to
+		$\overline S$, so it is at most the capacity of the cut $(S,\overline S)$.
+		Hence
+		$
+		u(S,\overline S)
+		\ge
+		\sum_{\substack{v v_n \in E:\\ v \in A_{j-1}}} u(vv_n).
+		$
+		Since $A_{j-1} \subseteq \{v_1,\ldots,v_{n-1}\}$ and all capacities are nonnegative,
+		we get
+		$
+		u(S,\overline S)
+		\ge
+		\sum_{\substack{v v_n \in E:\\ v \in \{v_1,\ldots,v_{n-1}\}}} u(vv_n).
+		$
+		
+		On the other hand, the cut
+		$
+		(\{v_n\}, V \setminus \{v_n\})
+		$
+		separates $v_{n-1}$ and $v_n$, and its capacity is exactly
+		$
+		\sum_{\substack{v v_n \in E:\\ v \in \{v_1,\ldots,v_{n-1}\}}} u(vv_n).
+		$
+		Therefore this is the minimum capacity of any cut separating $v_{n-1}$ and $v_n$.
+		
+		\medskip
+		
+		\item[(c)] The previous parts give the standard contraction algorithm for global minimum cut.
+		
+		\medskip
+		
+		\textit{Algorithm.}
+		Repeatedly do the following until only one vertex remains:
+		
+		\begin{enumerate}
+			\item Compute a maximum-adjacency ordering
+			$
+			v_1,\ldots,v_n
+			$
+			in the current graph, using part (a).
+			\item Let
+			$
+			\lambda = \sum_{\substack{v v_n \in E:\\ v \in \{v_1,\ldots,v_{n-1}\}}} u(vv_n).
+			$
+			By part (b), this is the minimum capacity of a cut separating $v_{n-1}$ and $v_n$.
+			Record this value.
+			\item Contract the two vertices $v_{n-1}$ and $v_n$ into a single vertex, combining
+			parallel edges by adding their capacities.
+		\end{enumerate}
+		
+		Return the smallest recorded value over all phases.
+		
+		\medskip
+		
+		\textit{Correctness.}
+		At each phase, part (b) gives an $s$--$t$ minimum cut for the pair
+		$(v_{n-1},v_n)$. If a global minimum cut separates these two vertices, then we
+		have found its value. If not, then $v_{n-1}$ and $v_n$ lie on the same side of
+		some global minimum cut, so contracting them preserves that cut. Therefore some
+		phase must record the value of a global minimum cut, and taking the minimum over
+		all phases returns the global minimum cut value.
+		
+		\medskip
+		
+		\textit{Running time.}
+		Each phase computes the ordering in $O(n^2)$ time and then performs one contraction.
+		There are $n-1$ phases, so the total running time is
+		$
+		O(n^3).
+		$
+		
+		
+		\clearpage
+		
+		\section{Question 4}
+		
+		\begin{enumerate}
+			\item[(a)] Use the analysis of the Contraction Algorithm for global minimum cuts
+			to prove that a graph with $n$ vertices can have at most $\binom{n}{2}$
+			distinct minimum cuts (distinct up to complement).
+			
+			\item[(b)] Provide an example of a specific graph topology on $n$ vertices that has
+			exactly $\binom{n}{2}$ minimum cuts, proving that the analysis of Karger's
+			algorithm is tight.
+		\end{enumerate}
+	
+	
+	\textbf{Answer}
+	
+	\begin{enumerate}
+		\item[(a)] Let $\lambda$ denote the value of a global minimum cut of $G$.
+		We use the standard analysis of Karger's contraction algorithm.
+		
+		Fix any particular minimum cut $C$. In the contraction algorithm, as long as
+		no edge of $C$ is contracted, the two sides of $C$ remain distinct, and so
+		$C$ survives to the end. Thus the algorithm outputs $C$ provided it never
+		contracts an edge of $C$.
+		
+		Now suppose that at some stage of the algorithm there are $r$ vertices left.
+		Because the minimum cut value is $\lambda$, every vertex has degree at least
+		$\lambda$, so the graph has at least
+		$
+		\frac{r\lambda}{2}
+		$
+		edges. Since the cut $C$ has exactly $\lambda$ edges, the probability that the
+		next random contraction chooses an edge of $C$ is at most
+		$
+		\frac{\lambda}{r\lambda/2} = \frac{2}{r}.
+		$
+		Hence the probability that $C$ survives this contraction is at least
+		$
+		1-\frac{2}{r}=\frac{r-2}{r}.
+		$
+		
+		Therefore the probability that $C$ survives all contractions from $n$ vertices
+		down to $2$ vertices is at least
+		$
+		\prod_{r= n}^{3}\frac{r-2}{r}
+		=
+		\frac{n-2}{n}\cdot\frac{n-3}{n-1}\cdots\frac{1}{3}
+		=
+		\frac{2}{n(n-1)}
+		=
+		\frac{1}{\binom{n}{2}}.
+		$
+		
+		So every fixed minimum cut is output by the contraction algorithm with
+		probability at least $1/\binom{n}{2}$.
+		
+		Now let $N$ be the number of distinct minimum cuts, counted up to complement.
+		The algorithm outputs exactly one cut, so the probabilities of outputting
+		these distinct minimum cuts sum to at most $1$. Since each one is output with
+		probability at least $1/\binom{n}{2}$, we obtain
+		$
+		N \cdot \frac{1}{\binom{n}{2}} \le 1.
+		$
+		Thus
+		$
+		N \le \binom{n}{2}.
+		$
+		
+		Hence a graph on $n$ vertices has at most $\binom{n}{2}$ distinct minimum cuts
+		(up to complement).
+		
+		\medskip
+		
+		\item[(b)] Consider the cycle graph $C_n$ on vertices
+		$
+		v_1,v_2,\ldots,v_n,
+		$
+		with unit capacity on every edge.
+		
+		The value of the global minimum cut is $2$, since every vertex has degree $2$,
+		and isolating any nonempty proper set of consecutive vertices cuts exactly two
+		edges.
+		
+		Now every minimum cut in $C_n$ is obtained by choosing two distinct edges of
+		the cycle and deleting them. Removing two distinct edges breaks the cycle into
+		two connected components, which define a cut of capacity $2$. Conversely, any
+		cut of capacity $2$ must correspond to removing exactly two edges, since all
+		edge capacities are $1$ and no cut can have capacity $1$ in a cycle.
+		
+		Thus the minimum cuts are in one-to-one correspondence with unordered pairs of
+		distinct edges of the cycle. Since the cycle has $n$ edges, the number of such
+		pairs is
+		$
+		\binom{n}{2}.
+		$
+		
+		Two complementary sides define the same cut, and choosing the same two deleted
+		edges gives exactly one cut up to complement, so the number of distinct minimum
+		cuts (up to complement) is exactly
+		$
+		\binom{n}{2}.
+		$
+		
+		Therefore the bound in part (a) is tight.
+	\end{enumerate}
+	
+		\clearpage
+		
+		\section{Question 5}
+		Consider the following modification of the maximum flow problem. You are given:
+		a network $N(V,A)$; $k$ goods and for each good $i$ a source $s_i$ and a sink
+		$t_i$; and upper bounds $u_a$ on each arc $a$. A feasible flow is a collection
+		of non-negative vectors $f_1,\ldots,f_k \in \mathbb{R}^A$ such that each $f_i$
+		is an $s_i$--$t_i$ flow, and such that, on each arc $a$, the total flow passing
+		through that arc is at most $u_a$. The problem is to find an integer flow that
+		maximizes $\sum_{i=1}^k \operatorname{val}(f_i)$, where $\operatorname{val}(f_i)$
+		is the value of a flow, that is the flow leaving the source (or equivalently,
+		entering the sink).
+		
+		\begin{enumerate}
+			\item[(a)] Write the problem as an Integer Program.
+			
+			\item[(b)] Suppose that all data is integer, nonnegative, and that the problem is
+			feasible. Relax the integrality constraints of your IP, and consider the LP you
+			obtain. Does this problem always have an optimal solution that is integer and why?
+		\end{enumerate}
+	
+		\textbf{Answer}
+		
+		\textbf{Answer.}
+		
+		\begin{enumerate}
+			\item[(a)] We introduce variables $f_i(a)$ for each good $i=1,\ldots,k$ and each
+			arc $a \in A$, where $f_i(a)$ denotes the amount of good $i$ sent through arc $a$.
+			We also introduce a variable $x_i$ for the value of the $i$th flow.
+			
+			The integer program is:
+			
+			$
+			\max \sum_{i=1}^k x_i
+			$
+			
+			subject to the following constraints.
+			
+			\medskip
+			
+			\textit{Flow conservation for each commodity.} For every good $i$ and every
+			vertex $v \in V \setminus \{s_i,t_i\}$,
+			$
+			\sum_{a \in \delta^+(v)} f_i(a) - \sum_{a \in \delta^-(v)} f_i(a) = 0.
+			$
+			
+			At the source $s_i$,
+			$
+			\sum_{a \in \delta^+(s_i)} f_i(a) - \sum_{a \in \delta^-(s_i)} f_i(a) = x_i.
+			$
+			
+			At the sink $t_i$,
+			$
+			\sum_{a \in \delta^+(t_i)} f_i(a) - \sum_{a \in \delta^-(t_i)} f_i(a) = -x_i.
+			$
+			
+			\medskip
+			
+			\textit{Arc-capacity constraints.} For every arc $a \in A$,
+			$
+			\sum_{i=1}^k f_i(a) \le u_a.
+			$
+			
+			\medskip
+			
+			\textit{Nonnegativity and integrality.} For every $i$ and every $a \in A$,
+			$
+			f_i(a) \ge 0, \qquad f_i(a) \in \mathbb{Z},
+			$
+			and
+			$
+			x_i \ge 0, \qquad x_i \in \mathbb{Z}.
+			$
+			
+			This is an integer program for the stated problem.
+			
+			\medskip
+			
+			\item[(b)] Relaxing the integrality constraints gives a linear program. In general,
+			this LP does \emph{not} always have an optimal solution that is integer.
+			
+			The reason is that this is a \emph{multicommodity flow} problem. For ordinary
+			single-commodity maximum flow, the constraint matrix is totally unimodular, so
+			with integer capacities every extreme point solution is integral. Here, however,
+			the different commodities are coupled through the shared arc-capacity constraints
+			$
+			\sum_{i=1}^k f_i(a) \le u_a,
+			$
+			and the resulting constraint matrix is not, in general, totally unimodular.
+			Therefore fractional optimal solutions can occur.
+			
+			\medskip
+			
+			A simple example is the following. Let there be two goods, each of which wants to
+			send one unit across a network in which the two commodities must share a bottleneck
+			of capacity $1$. Fractionally, the LP may route $\tfrac12$ unit of each commodity
+			through the bottleneck and achieve total value $1$, while no integral solution can
+			do this for both simultaneously in the same way. Thus the LP relaxation need not
+			have an integral optimum.
+			
+			Hence the answer is:
+			
+			\medskip
+			
+			\textbf{No,} the LP relaxation does not always have an optimal solution that is
+			integer, because multicommodity flow does not in general enjoy the integrality
+			property of single-commodity flow.
+		\end{enumerate}
+	
+		
+		
+	\end{document}
