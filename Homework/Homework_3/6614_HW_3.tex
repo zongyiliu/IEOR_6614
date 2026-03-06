@@ -76,8 +76,6 @@
 		
 		\textbf{Answer}
 		
-		\textbf{Solution.}
-		
 		Let $A = \{v \in V : d(v) > k\}$.
 		
 		\textbf{Step 1: Vertices with $d(v) > k$ lie on the source side of a minimum cut.}
@@ -201,8 +199,6 @@
 	
 		\textbf{Answer}
 		
-		\textbf{Solution.}
-		
 		We analyze the running time of the push--relabel algorithm that always
 		selects the active vertex with the highest distance label and performs
 		\textsc{Discharge} on it.
@@ -262,13 +258,7 @@
 		
 		Finally, each execution of \textsc{Discharge} performs only constant work
 		between pushes or relabels, so the total running time of the algorithm
-		is bounded by the number of these operations.
-		
-		\medskip
-		
-		\textbf{Conclusion.}
-		
-		The total number of relabels is $O(n^2)$ and the total number of pushes
+		is bounded by the number of these operations. The total number of relabels is $O(n^2)$ and the total number of pushes
 		is $O(n^3)$. Therefore the running time of the algorithm is
 		$O(n^3).$
 
@@ -299,8 +289,6 @@
 		
 		
 		\textbf{Answer}
-		
-		\textbf{Solution.}
 		
 		\item[(a)] We construct the order greedily. For each vertex $w$ not yet chosen, let
 		$
